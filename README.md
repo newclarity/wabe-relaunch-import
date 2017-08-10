@@ -1,7 +1,7 @@
-#WABE.org Import Process
+# WABE.org Import Process
 \- 2017-08-10
 
-##Preparation
+## Preparation
 1. Remove data from `old_` that is already in `live`
 2. Add _"Legacy Import"_ user in `wp_users`
 3. Assign _"Legacy Import"_ user to `post_author` in `wp_posts`
@@ -13,7 +13,7 @@
 	2. Copy DB from `live`
 	2. Copy Files from `live`
 
-##Starting assets
+## Starting assets
 1. Dump of the `old_` data tables from `import`
 2. Uploads from `import` - `post_type='post'` uploads _(already on `live`)_
 3. Uploads from `import` - `post_type='wabe_person'` 
