@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+announce "Adding tables to working database..."
+mysql -h ${TARGET_HOSTNAME} wordpress < ${DATA_DIRECTORY}/import_package.sql
+
 announce "Importing old posts..."
 mysql -h ${TARGET_HOSTNAME} -e "INSERT INTO wp_posts (SELECT * FROM old_posts)" ${DB_NAME}
 
