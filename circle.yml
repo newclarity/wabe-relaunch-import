@@ -66,12 +66,12 @@
 #         #
 #         - workflow/dependencies.sh
 #
-#     compile:
-#       override:
-#         #
-#         # Now rsync site files from SOURCE to TEST
-#         #
-#         - workflow/compile.sh
+     compile:
+       override:
+         #
+         # Install the Pantheon CLI terminus
+         #
+         - workflow/terminus.sh
 
 
      test:
