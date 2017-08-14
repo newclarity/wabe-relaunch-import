@@ -79,12 +79,12 @@
          - echo 'No tests, just say us Okay!'
 
 
-#     deployment:
-#
-#       preview:
-#         branch: player
-#         commands:
-#         - workflow/deployment.sh
+     deployment:
+
+       preview:
+         branch: develop
+         commands:
+         - workflow/preview.sh
 #
 #       live:
 #         branch: master
