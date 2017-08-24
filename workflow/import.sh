@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TARGET_HOSTNAME=dbserver.import.d5981687-a2b6-4a2c-9456-ae933c90b097.drush.in
+DB_HOSTNAME=dbserver.import.d5981687-a2b6-4a2c-9456-ae933c90b097.drush.in
 DB_USERNAME=pantheon
 DB_PASSWORD=ef4d5a6cfe564c0c84b86bfb7013d9d6
 DB_PORT=11409
