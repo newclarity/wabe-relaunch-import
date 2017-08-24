@@ -82,9 +82,14 @@
      deployment:
 
        preview:
-         branch: develop
+         branch: preview
          commands:
          - workflow/preview.sh
+
+       import:
+        branch: import
+        commands:
+          - workflow/import.sh
 #
 #       live:
 #         branch: master
