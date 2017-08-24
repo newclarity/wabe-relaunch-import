@@ -4,7 +4,7 @@ announce "Extracting compressed data..."
 bzip2 -dk sql/import_package.sql.bz2
 
 announce "Adding old tables to working database..."
-mysql -h ${DB_HOSTNAME} -u ${DB_USERNAME} -p${DB_PASSWORD} -P ${DB_PORT} {$DB_NAME} < ${DATA_DIRECTORY:=sql}/import_package.sql
+mysql -h ${DB_HOSTNAME} -u ${DB_USERNAME} -p${DB_PASSWORD} -P ${DB_PORT} ${DB_NAME} < ${DATA_DIRECTORY:=sql}/import_package.sql
 
 announce "Importing old posts..."
 mysql -h ${DB_HOSTNAME} -u ${DB_USERNAME} -p${DB_PASSWORD} -P ${DB_PORT} -e "INSERT INTO wp_posts (SELECT * FROM old_posts)" ${DB_NAME}
