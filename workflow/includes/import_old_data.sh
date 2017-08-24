@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+announce "Extracting compressed data..."
+bzip2 -dk sql/import_package.sql.bz2
+
 announce "Adding old tables to working database..."
 mysql -h ${TARGET_HOSTNAME} -u {$DB_USERNAME} -p${DB_PASSWORD} {$DB_NAME} < ${DATA_DIRECTORY:=sql}/import_package.sql
 
