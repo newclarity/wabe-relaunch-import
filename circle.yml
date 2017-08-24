@@ -52,20 +52,20 @@
 
      #checkout:
 
-#     dependencies:
-#       cache_directories:
-#         #
-#         # Cache the Composer cache.
-#         # @see: https://discuss.circleci.com/t/caching-composer-dependencies/1215
-#         #
-#         - ~/.composer/cache
-#
-#       override:
-#         #
-#         # Run the dependencies script
-#         #
-#         - workflow/dependencies.sh
-#
+     dependencies:
+       cache_directories:
+         #
+         # Cache the Composer cache.
+         # @see: https://discuss.circleci.com/t/caching-composer-dependencies/1215
+         #
+         - ~/.composer/cache
+
+       override:
+         #
+         # Run the dependencies script
+         #
+         - workflow/dependencies.sh
+
      compile:
        override:
          #
