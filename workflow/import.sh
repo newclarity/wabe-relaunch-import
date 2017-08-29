@@ -12,6 +12,6 @@ declare=${WORKFLOW_ROOT:=}
 
 # Clone the live database and files to the target environment
 announce "Cloning WABE live site database to import branch"
-./vendor/bin/terminus env:clone-content -y ${PANTHEON_SITE_NAME}.live import
+./vendor/bin/terminus env:clone-content --db-only -y ${PANTHEON_SITE_NAME}.live import
 
-source ${WORKFLOW_ROOT}/includes/import_old_data.sh
+#source ${WORKFLOW_ROOT}/includes/import_old_data.sh
