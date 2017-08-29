@@ -5,6 +5,7 @@ DB_USERNAME=pantheon
 DB_PASSWORD=ef4d5a6cfe564c0c84b86bfb7013d9d6
 DB_PORT=11409
 DB_NAME=pantheon
+WWW_HOST=http://import-wabe.pantheonsite.io
 
 declare=${PANTHEON_SITE_NAME:=}
 declare=${WORKFLOW_ROOT:=}
