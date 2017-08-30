@@ -23,7 +23,7 @@ mysql -h ${DB_HOSTNAME} -u ${DB_USERNAME} -p${DB_PASSWORD} -P ${DB_PORT} -e "INS
 
 # Get missing XML
 #announce "Retrieving story XML from NPR API..."
-#curl -L -k http://${WWW_HOST}/npr-missing-story-xml
+curl -L -k http://${WWW_HOST}/npr-missing-story-xml
 
 # Attribute/import authors for posts
 #announce "Processing authors from NPR API..."
