@@ -25,47 +25,10 @@ PREVIEW_PASSWORD=5d2c4707db8b42f6900ad610d74ad362
 PREVIEW_PORT=16159
 PREVIEW_DBNAME=pantheon
 
+# This is due to a strange behavior where using the '*' in the SQL would expand into a listing of directory contents
 POST_FIELDS="ID, post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, comment_status, ping_status,
 post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_content_filtered, post_parent, guid,
 menu_order, post_type, post_mime_type, comment_count"
-
-declare=${REPO_ROOT:=}
-declare=${CIRCLE_BRANCH:=}
-declare=${PROD_GIT_USER:=}
-declare=${PROD_GIT_REPO:=}
-declare=${QA_GIT_USER:=}
-declare=${QA_GIT_REPO:=}
-declare=${ARTIFACTS_FILE:=}
-declare=${CIRCLE_ARTIFACTS:=}
-ARTIFACTS_FILE="${PWD}/artifacts"
-#
-# Set artifacts file for this script
-#
-ARTIFACTS_FILE="${ARTIFACTS_FILE:="${CIRCLE_ARTIFACTS}/shared-scripts.log"}"
-
-#
-# Set an error trap. Uses an $ACTION variable.
-#
-ACTION=""
-announce () {
-    ACTION="$1"
-    printf "${ACTION}\n"
-    printf "${ACTION}\n" >> $ARTIFACTS_FILE
-}
-onError() {
-    if [ $? -ne 0 ] ; then
-        printf "FAILED: ${ACTION}.\n"
-        exit 1
-    fi
-}
-trap onError ERR
-
-#
-# Making artifact subdirectory
-#
-announce "Creating artifact file ${ARTIFACTS_FILE}"
-echo . > $ARTIFACTS_FILE
-onError
 
 
 # Add old stories
@@ -78,7 +41,6 @@ mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${P
 CREATE TABLE ${POSTS_DEST} LIKE ${POSTS_SOURCE};"
 
 announce "Preparing old stories"
-SQL=""
 mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
 INSERT INTO
     ${POSTS_DEST} (
@@ -99,6 +61,9 @@ INSERT INTO
 for POST_TYPE in "${POST_TYPES[@]}"
 do
     :
+    #strictly for testing 
+    if [ ${POST_TYPE} != "page" ] || [ ${POST_TYPE} != "nav-menu-item" ] || [ ${POST_TYPE} != "wabe_guide" ]
+    then
     announce "Preparing ${POST_TYPE}s"
     mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
     INSERT INTO
@@ -113,6 +78,7 @@ do
             AND
                 post_status = 'publish'
         )"
+    fi
 done
 
 # Prepare all necessary attachments for our posts that will be  imported
