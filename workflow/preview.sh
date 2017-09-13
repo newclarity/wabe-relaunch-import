@@ -8,7 +8,7 @@ DB_PASSWORD=5d2c4707db8b42f6900ad610d74ad362
 DB_PORT=16159
 
 # Clone the live database and files to the target environment
-announce "Cloning WABE live site database and files to preview branch"
-./vendor/bin/terminus env:clone-content -y ${PANTHEON_SITE_NAME}.live preview
+#announce "Cloning WABE live site database and files to preview branch"
+#./vendor/bin/terminus env:clone-content --db-only -y ${PANTHEON_SITE_NAME}.live preview
 
 source includes/import_old_data.sh

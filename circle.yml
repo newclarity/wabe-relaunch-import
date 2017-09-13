@@ -72,6 +72,7 @@
          # Install the Pantheon CLI terminus
          #
          - workflow/terminus.sh
+         - workflow/includes/build-package.sh
 
 
      test:

@@ -48,3 +48,22 @@
     3. `curl` the URL (path) `/npr-image-attributions`
     4. `curl` the URL (path) `/npr-content-source`
 
+
+
+## Misc Queries
+
+Used to find stories with orphaned categories or tags:
+````
+SELECT
+tr.*, t.name,p.post_title
+FROM
+wp_term_relationships tr
+LEFT OUTER JOIN
+wp_term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+LEFT OUTER JOIN
+wp_terms t ON t.term_id = tt.term_id
+LEFT OUTER JOIN
+wp_posts p ON p.ID = tr.object_id
+WHERE
+tt.term_taxonomy_id IS NULL
+````
