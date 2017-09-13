@@ -64,7 +64,7 @@ for POST_TYPE in "${POST_TYPES[@]}"
 do
     :
     #strictly for testing
-    if [ ${POST_TYPE} != "page" ] || [ ${POST_TYPE} != "nav-menu-item" ] || [ ${POST_TYPE} != "wabe_guide" ]
+    if [ ${POST_TYPE} != "page" ] || [ ${POST_TYPE} != "nav_menu_item" ] || [ ${POST_TYPE} != "wabe_guide" ]
     then
     announce "Preparing ${POST_TYPE}s"
     mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
@@ -84,25 +84,25 @@ do
 done
 
 # Prepare all necessary attachments for our posts that will be  imported
-announce "Preparing attachments"
-mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
-INSERT INTO
-    ${POSTS_DEST} (
-    SELECT
-        ${POST_FIELDS}
-    FROM
-        ${POSTS_SOURCE}
-    WHERE 1=1
-    AND
-        post_type = 'attachment'
-    AND
-        post_parent IN (
-            SELECT
-                ID
-            FROM
-                ${POSTS_DEST}
-        )
-    )"
+#announce "Preparing attachments"
+#mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
+#INSERT INTO
+#    ${POSTS_DEST} (
+#    SELECT
+#        ${POST_FIELDS}
+#    FROM
+#        ${POSTS_SOURCE}
+#    WHERE 1=1
+#    AND
+#        post_type = 'attachment'
+#    AND
+#        post_parent IN (
+#            SELECT
+#                ID
+#            FROM
+#                ${POSTS_DEST}
+#        )
+#    )"
 
 
 announce "Dropping existing import meta table"
