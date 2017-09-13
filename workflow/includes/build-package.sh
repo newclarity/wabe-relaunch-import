@@ -5,7 +5,7 @@ source ${SHARED_SCRIPTS}
 OLD_STORY_START_ID=375000
 OLD_STORY_END_ID=407946
 OLD_STORY_END_DATE="2015-10-01"
-POST_TYPES=("page" "wabe_person" "wabe_show" "wabe_guide" "nav_menu_item")
+POST_TYPES=("wabe_person" "wabe_show")
 NEW_META_START_ID=4000000
 TERM_ID_START=2000
 
@@ -57,15 +57,14 @@ INSERT INTO
             post_status = 'publish'
         AND
             post_date < '${OLD_STORY_END_DATE}'
+        AND
+            ID >= 375000
     )"
 
 # Add other post types
 for POST_TYPE in "${POST_TYPES[@]}"
 do
     :
-    #strictly for testing
-    if [ ${POST_TYPE} != "page" ] || [ ${POST_TYPE} != "nav_menu_item" ] || [ ${POST_TYPE} != "wabe_guide" ]
-    then
     announce "Preparing ${POST_TYPE}s"
     mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
     INSERT INTO
@@ -80,29 +79,28 @@ do
             AND
                 post_status = 'publish'
         )"
-    fi
 done
 
 # Prepare all necessary attachments for our posts that will be  imported
-#announce "Preparing attachments"
-#mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
-#INSERT INTO
-#    ${POSTS_DEST} (
-#    SELECT
-#        ${POST_FIELDS}
-#    FROM
-#        ${POSTS_SOURCE}
-#    WHERE 1=1
-#    AND
-#        post_type = 'attachment'
-#    AND
-#        post_parent IN (
-#            SELECT
-#                ID
-#            FROM
-#                ${POSTS_DEST}
-#        )
-#    )"
+announce "Preparing attachments"
+mysql -h ${PREVIEW_HOSTNAME} -u ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} -P ${PREVIEW_PORT} ${PREVIEW_DBNAME} -e "
+INSERT INTO
+    ${POSTS_DEST} (
+    SELECT
+        ${POST_FIELDS}
+    FROM
+        ${POSTS_SOURCE}
+    WHERE 1=1
+    AND
+        post_type = 'attachment'
+    AND
+        post_parent IN (
+            SELECT
+                ID
+            FROM
+                ${POSTS_DEST}
+        )
+    )"
 
 
 announce "Dropping existing import meta table"
@@ -197,4 +195,3 @@ OR
 # Export the package
 announce "Downloading import package"
 mysqldump --host ${PREVIEW_HOSTNAME} --user ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} --port ${PREVIEW_PORT} ${PREVIEW_DBNAME} ${POSTS_DEST} ${META_DEST} ${TERMS_DEST} ${TT_DEST} ${TR_DEST} > import_package.sql
-
