@@ -227,6 +227,6 @@ OR
 # Add Home page configs? OR is this referring to setting the WP "Reading Settings First Page Displays" option?
 
 # Export the package
-announce "Downloading import pagkage"
-mysqldump --host ${PREVIEW_HOSTNAME} --user ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} --port ${PREVIEW_PORT} ${PREVIEW_DBNAME} ${POSTS_DEST} ${META_DEST} ${TERMS_DEST} ${TR_DEST} > import_package.sql
+announce "Downloading import package"
+mysqldump --host ${PREVIEW_HOSTNAME} --user ${PREVIEW_USERNAME} -p${PREVIEW_PASSWORD} --port ${PREVIEW_PORT} ${PREVIEW_DBNAME} ${POSTS_DEST} ${META_DEST} ${TERMS_DEST} ${TT_DEST} ${TR_DEST} > import_package.sql
 

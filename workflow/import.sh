@@ -3,7 +3,7 @@
 declare=${PANTHEON_SITE_NAME:=}
 declare=${WORKFLOW_ROOT:=}
 
-source ${WORKFLOW_ROUTE}/shared/scripts.sh
+source ${WORKFLOW_ROOT}/shared/scripts.sh
 
 DB_HOSTNAME=dbserver.import.d5981687-a2b6-4a2c-9456-ae933c90b097.drush.in
 DB_USERNAME=pantheon
