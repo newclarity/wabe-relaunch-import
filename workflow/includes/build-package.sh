@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source ${SHARED_SCRIPTS}
+
 OLD_STORY_START_ID=375000
 OLD_STORY_END_ID=407946
 OLD_STORY_END_DATE="2015-10-01"
@@ -61,7 +63,7 @@ INSERT INTO
 for POST_TYPE in "${POST_TYPES[@]}"
 do
     :
-    #strictly for testing 
+    #strictly for testing
     if [ ${POST_TYPE} != "page" ] || [ ${POST_TYPE} != "nav-menu-item" ] || [ ${POST_TYPE} != "wabe_guide" ]
     then
     announce "Preparing ${POST_TYPE}s"
