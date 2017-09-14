@@ -119,7 +119,10 @@ INSERT INTO
             *
         FROM
             ${META_SOURCE}
-        WHERE
+        WHERE 1=1
+        AND
+            meta_key  IN ( 'npr_author_xml', 'npr_story_xml', '_wabe_story_authors', '_wabe_attribution_processed', '_wabe_authors_imported_from_xml', '_wabe_photo_agency', '_wabe_photo_agency_url', '_wabe_photo_credit', '_wabe_photo_npr_image_id' )
+        OR
             post_id IN (
                 SELECT
                     ID
