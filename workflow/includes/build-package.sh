@@ -6,7 +6,7 @@ OLD_STORY_START_ID=375000
 OLD_STORY_END_ID=407946
 OLD_STORY_END_DATE="2015-10-01"
 
-POST_TYPES=("wabe_person" "wabe_show" "wabe_guide", "page", "nav-menu-item")
+POST_TYPES=("wabe_person" "wabe_show" "wabe_guide" "page" "nav-menu-item")
 NEW_META_START_ID=4000000
 TERM_ID_START=2000
 
