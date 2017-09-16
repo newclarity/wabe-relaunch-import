@@ -26,6 +26,7 @@ mysql_dest "INSERT INTO wp_term_taxonomy (SELECT * FROM import_term_taxonomy)"
 announce "Importing term relationships..."
 mysql_dest "INSERT INTO wp_term_relationships (SELECT * FROM import_term_relationships)"
 
+announce "Importing posts into live tables..."
 ./vendor/bin/terminus wp wabe.import wabe-import
 
 # Set the home page setting
