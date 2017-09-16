@@ -54,7 +54,7 @@ mysql_preview "
 INSERT INTO
     ${POSTS_DEST} (
         SELECT
-            \*
+            ${POST_FIELDS}
         FROM
             ${POSTS_SOURCE}
         WHERE 1=1
