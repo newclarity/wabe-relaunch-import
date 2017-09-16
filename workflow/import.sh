@@ -16,4 +16,8 @@ WWW_HOST=http://import-wabe.pantheonsite.io
 #announce "Cloning WABE live site database to import branch"
 ./vendor/bin/terminus env:clone-content --db-only -y ${PANTHEON_SITE_NAME}.live import
 
+# Add some sanity checks here
+announce "Preparing import data to assure no conflicting IDs...";
+./vendor/bin/terminus wp wabe.import wabe-prepare-import
+
 source ${WORKFLOW_ROOT}/includes/import_old_data.sh
