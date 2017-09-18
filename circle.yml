@@ -1,98 +1,90 @@
-     #
-     # circle.yaml
-     #
-     #   For www.apartmentguide.com/blog/
-     #
-     machine:
-       timezone:
-         America/New_York
+#
+# circle.yaml
+#
+#   For www.apartmentguide.com/blog/
+#
+machine:
+    timezone:
+        America/New_York
 
-#       php:
-#         #
-#         # WPEngine is running `5.6.30-wpengine8` on  2017-07-05.
-#         #
-#         version: 5.6.22
+    php:
+        version: 7.0.20
 
-       environment:
+    environment:
 
-         #
-         # Define the Deployment provider
-         #
-         DEPLOY_PROVIDER:  "pantheon"
+        #
+        # Define the Deployment provider
+        #
+        DEPLOY_PROVIDER:  "pantheon"
 
-         #
-         # The database credentials for WordPress on CircleCI
-         #
-         DB_HOST:        127.0.0.1
-         DB_NAME:        wordpress
-         DB_USER:        wordpress
-         DB_PASSWORD:    wordpress
+        #
+        # The database credentials for WordPress on CircleCI
+        #
+        DB_HOST:        127.0.0.1
+        DB_NAME:        wordpress
+        DB_USER:        wordpress
+        DB_PASSWORD:    wordpress
 
-         #
-         # The version of PHP defined above
-         #
-         PHP_VERSION:    "$(phpenv global)"
+        #
+        # The version of PHP defined above
+        #
+        PHP_VERSION:    "$(phpenv global)"
 
-         #
-         # The root for this repo in CircleCI
-         #
-         REPO_ROOT:   "${HOME}/${CIRCLE_PROJECT_REPONAME}"
+        #
+        # The root for this repo in CircleCI
+        #
+        REPO_ROOT:   "${HOME}/${CIRCLE_PROJECT_REPONAME}"
 
-         #
-         # The roots for all the workflow related files and code
-         #
-         WORKFLOW_ROOT:  "${REPO_ROOT}/workflow"
-         SHARED_SCRIPTS: "${WORKFLOW_ROOT}/shared/scripts.sh"
-         #FILES_ROOT:     "${WORKFLOW_ROOT}/files"
-         PROVIDERS_ROOT: "${WORKFLOW_ROOT}/providers"
+        #
+        # The roots for all the workflow related files and code
+        #
+        WORKFLOW_ROOT:  "${REPO_ROOT}/workflow"
+        SHARED_SCRIPTS: "${WORKFLOW_ROOT}/shared/scripts.sh"
+        #FILES_ROOT:     "${WORKFLOW_ROOT}/files"
+        PROVIDERS_ROOT: "${WORKFLOW_ROOT}/providers"
 
-       hosts:
-         wabe.test: 127.0.0.1
-         www.wabe.test: 127.0.0.1
+    hosts:
+        wabe-relaunch.test: 127.0.0.1
+        www.wabe-relaunch.test: 127.0.0.1
 
-     #checkout:
+#checkout:
 
-     dependencies:
-       cache_directories:
-         #
-         # Cache the Composer cache.
-         # @see: https://discuss.circleci.com/t/caching-composer-dependencies/1215
-         #
-         - ~/.composer/cache
+dependencies:
+    cache_directories:
+        #
+        # Cache the Composer cache.
+        # @see: https://discuss.circleci.com/t/caching-composer-dependencies/1215
+        #
+        - ~/.composer/cache
 
-       override:
-         #
-         # Run the dependencies script
-         #
-         - workflow/dependencies.sh
+    override:
+        #
+        # Run the dependencies script
+        #
+        - workflow/dependencies.sh
 
-     compile:
-       override:
-         #
-         # Install the Pantheon CLI terminus
-         #
-         - workflow/terminus.sh
-         - workflow/includes/build-package.sh
+    compile:
+    override:
+        #
+        # Install the Pantheon CLI terminus
+        #
+        - workflow/terminus.sh
+        - workflow/includes/build-package.sh
 
 
-     test:
-       override:
-         - echo 'No tests, just say us Okay!'
+test:
+    override:
+        - echo 'No tests, just say us Okay!'
 
 
-     deployment:
+deployment:
 
-       preview:
-         branch: preview
-         commands:
-         - workflow/preview.sh
+    preview:
+        branch: preview
+        commands:
+        - workflow/preview.sh
 
-       import:
+    import:
         branch: import
         commands:
-          - workflow/import.sh
-#
-#       live:
-#         branch: master
-#         commands:
-#         - workflow/deployment.sh
+        - workflow/import.sh
