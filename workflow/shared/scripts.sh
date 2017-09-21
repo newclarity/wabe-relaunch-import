@@ -12,6 +12,7 @@ declare=${QA_GIT_REPO:=}
 declare=${ARTIFACTS_FILE:=}
 declare=${CIRCLE_ARTIFACTS:=}
 
+
 #
 # Set artifacts file for this script
 #
@@ -57,3 +58,84 @@ onError
 #esac
 #GIT_URL="${GIT_USER}@${GIT_REPO}"
 #announce "Git branch is ${CIRCLE_BRANCH}; URL is ${GIT_URL}"
+
+
+function s2a {
+    a="$1"
+    array=""
+    for s in $a; do
+        key="$(trim "${s%%=*}")"
+        val="$(trim "${s##*=}")"
+        array="["${key}"]="${val}" ${array}"
+    done
+    echo "${array}"
+}
+
+# https://stackoverflow.com/a/12973694/102699
+function trim {
+    echo "$1" | xargs
+}
+
+
+function mysql_execute() {
+    declare -A credentials
+    eval credentials=("$(s2a "$1")")
+    mysql \
+        --host="${credentials[HOST]}" \
+        --user="${credentials[USER]}" \
+        --password="${credentials[PASS]}" \
+        --port="${credentials[PORT]}"\
+        "${credentials[NAME]}" \
+        --execute="$2"
+}
+
+function mysql_import() {
+    declare -A credentials
+    eval credentials=("$(s2a "$1")")
+    import_file="$2"
+    mysql \
+        --host="${credentials[HOST]}" \
+        --user="${credentials[USER]}" \
+        --password="${credentials[PASS]}" \
+        --port="${credentials[PORT]}"\
+        "${credentials[NAME]}" \
+        < $import_file
+}
+
+
+function mysql_dump() {
+    declare -A credentials
+    eval credentials=("$(s2a "$1")")
+    shift
+    mysqldump \
+        --host="${credentials[HOST]}" \
+        --user="${credentials[USER]}" \
+        --password="${credentials[PASS]}" \
+        --post="${credentials[PORT]}"\
+        "${credentials[NAME]}" \
+        "$@"
+}
+
+#
+# Output value of global variable given its name
+#
+function dereference() {
+    #
+    # Assign credentials var to $varname
+    #
+    varname="$1"
+    echo "$(eval echo "\$${varname}")"
+}
+
+#
+# Capture MySQL credentials based on branch
+#
+function branch_credentials() {
+    #
+    # Uppercase CIRCLE_BRANCH
+    # Dereference credentials to get value of credentials
+    #
+    echo "$(dereference "${CIRCLE_BRANCH^^}_CREDENTIALS")"
+}
+
+BRANCH_CREDENTIALS="$(branch_credentials)"
