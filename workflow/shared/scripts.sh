@@ -43,12 +43,6 @@ function trim {
     echo "$1" | xargs
 }
 
-MYSQL_ENV=""
-function set_mysql_env() {
-    MYSQL_ENV="$1"
-    write_mysql_credentials "${MYSQL_ENV}"
-}
-
 function execute_mysql() {
     branch="${2:-${MYSQL_ENV}}"
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1"
@@ -159,7 +153,7 @@ function write_mysql_credentials() {
                 ;;
             mysql_database)
                 property=""
-                database="{$value}"
+                database="${value}"
                 ;;
             *) property=""
                 ;;
@@ -169,8 +163,20 @@ function write_mysql_credentials() {
         fi
     done
     echo "[mysql]" >> ${defaults_file}
-    echo "${database}=\"${database}\"" >> ${defaults_file}
+    echo "database=\"${database}\"" >> ${defaults_file}
 
     IFS="${saveIFS}"
 
 }
+
+MYSQL_ENV=""
+function set_mysql_env() {
+    MYSQL_ENV="$1"
+    write_mysql_credentials "${MYSQL_ENV}"
+}
+#
+# Set the default MySQL environment to be same as current branch
+# Each branch should equate to an environment, at least on Pantheon
+#
+announce "Set default MySQL environment to ${CIRCLE_BRANCH}"
+set_mysql_env "${CIRCLE_BRANCH}"
