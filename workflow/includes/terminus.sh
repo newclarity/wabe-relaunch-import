@@ -5,10 +5,20 @@ declare=${REPO_ROOT:=}
 
 # @link https://pantheon.io/docs/terminus
 
-# Install Terminus
-announce "Installing Terminus"
-curl -O https://raw.githubusercontent.com/pantheon-systems/terminus-installer/master/builds/installer.phar && php installer.phar install
+cd "{$HOME}"
+if ! [ -d terminus ]; then
+    mkdir -p terminus
+    cd terminus
 
-# Authenticate to Pantheon
-announce "Authenticating with Pantheon via machine token"
-${REPO_ROOT}/vendor/bin/terminus auth:login --machine-token=${PANTHEON_MACHINE_TOKEN}
+    # Install Terminus
+    announce "Installing Terminus"
+    curl -O https://raw.githubusercontent.com/pantheon-systems/terminus-installer/master/builds/installer.phar && php installer.phar install
+
+    # Authenticate to Pantheon
+    announce "Authenticating with Pantheon via machine token"
+    execcute_terminus auth:login --machine-token="$(pantheon_machine_token)"
+
+fi
+
+announce "Setting alias to Pantheo's terminus"
+alias terminus="{$HOME}/terminus/vendor/bin/terminus"

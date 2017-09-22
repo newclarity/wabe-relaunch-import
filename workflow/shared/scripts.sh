@@ -11,7 +11,7 @@ declare=${QA_GIT_USER:=}
 declare=${QA_GIT_REPO:=}
 declare=${ARTIFACTS_FILE:=}
 declare=${CIRCLE_ARTIFACTS:=}
-
+declare=${TERMINUS_ROOT:=}
 
 #
 # Set artifacts file for this script
@@ -113,7 +113,7 @@ function dereference() {
 }
 
 function execute_terminus() {
-    ${REPO_ROOT}/vendor/bin/terminus "$@"
+    ${TERMINUS_ROOT}/vendor/bin/terminus "$@"
 }
 
 function pantheon_machine_token() {
