@@ -127,7 +127,7 @@ function write_mysql_credentials() {
 
     curl "$(get_website_url "${branch}")"
 
-    credentials="$(execute_terminus connection:info "wabe.${branch}" --fields=* | grep MySQL)"
+    credentials="$(execute_terminus connection:info "wabe.${branch}" --fields=* --format=yaml | grep mysql_ )"
     echo "${credentials}"
 
     saveIFS="${IFS}"
@@ -135,25 +135,23 @@ function write_mysql_credentials() {
 
     assignments=""
     for credential in ${credentials}; do
-        name="$(trim "${credential:8:10}")"
-        value="$(trim "${credential:19:128}")"
+        name="${credential%%:*}"
+        value="$(trim "${credential#* }")"
         case "${name}" in
-            Host) property="host"
+            mysql_host) property="host"
                 ;;
-            Username) property="user"
+            mysql_username) property="user"
                 ;;
-            Password) property="password"
+            mysql_password) property="password"
                 ;;
-            Port) property="port"
+            mysql_port) property="port"
                 ;;
-            Database) property="database"
+            mysql_database) property="database"
                 ;;
             *) property=""
                 ;;
         esac
         if [ "" != "${property}" ] ; then
-            echo "${credential}"
-            echo "${property}=\"${value}\""
             echo "${property}=\"${value}\"" >> ${defaults_file}
         fi
     done
