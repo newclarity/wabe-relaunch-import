@@ -112,6 +112,9 @@ compile:
     override:
         - workflow/compile.sh
 
+    post:
+        - devops/core/deployment.sh
+
 
 test:
     override:
