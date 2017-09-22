@@ -22,15 +22,13 @@ fi
 #
 #
 announce "Adding import tables to working database..."
-import_mysql < import_package.sql
-
-
+import_mysql "${DEPLOY_BRANCH}" < import_package.sql
 
 #
 # Add some sanity checks here
 #
 announce "Preparing import data to assure no conflicting IDs...";
-execute_terminus wp wabe.import -- wabe-prepare-import
+execute_terminus wp "wabe.${DEPLOY_BRANCH}" -- wabe-prepare-import
 
 announce "Importing posts..."
 execute_mysql "INSERT INTO wp_posts (SELECT * FROM import_posts)"
@@ -48,7 +46,7 @@ announce "Importing term relationships..."
 execute_mysql "INSERT INTO wp_term_relationships (SELECT * FROM import_term_relationships)"
 
 announce "Importing posts into live tables..."
-execute_terminus wp wabe.import wabe-import
+execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
 
 # Set the home page setting
 
