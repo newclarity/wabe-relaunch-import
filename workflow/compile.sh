@@ -95,7 +95,7 @@ announce "Preparing terms on 'preview'"
 execute_mysql "CREATE TABLE import_terms LIKE wp_terms;
     INSERT INTO import_terms
     SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID} OR term_id IN (
-        SELECT term_id FROM wp_term_taxonomy WHERE taxonomy IN {${taxonomies})
+        SELECT term_id FROM wp_term_taxonomy WHERE taxonomy IN (${taxonomies})
     );"
 
 announce "Drop existing import term taxonomy table on 'preview'"
