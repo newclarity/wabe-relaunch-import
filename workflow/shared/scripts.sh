@@ -64,41 +64,27 @@ function trim {
     echo "$1" | xargs
 }
 
+MYSQL_ENV=""
+function set_mysql_env() {
+    MYSQL_ENV="$1"
+    write_mysql_credentials "${MYSQL_ENV}"
+}
 
 function execute_mysql() {
-    declare -A "credentials=($1)"
-    mysql \
-        --host="${credentials["HOST"]}" \
-        --user="${credentials["USER"]}" \
-        --password="${credentials["PASS"]}" \
-        --port="${credentials["PORT"]}"\
-        "${credentials["NAME"]}" \
-        --execute="$2"
+    branch="${2:-${MYSQL_ENV}}"
+    mysql --defaults-extra-file="$(mysql_defaults_file "${branch}")" --execute="$1"
 }
 
-function mysql_import() {
-    declare -A "credentials=($1)"
-    import_file="$2"
-    mysql \
-        --host="${credentials["HOST"]}" \
-        --user="${credentials["USER"]}" \
-        --password="${credentials["PASS"]}" \
-        --port="${credentials["PORT"]}"\
-        "${credentials["NAME"]}" \
-        < $import_file
+function import_mysql() {
+    import_file="$1"
+    branch="${2:-${MYSQL_ENV}}"
+    mysql --defaults-extra-file="$(mysql_defaults_file "${branch}")" < $import_file
 }
 
-
-function mysql_dump() {
-    declare -A "credentials=($1)"
+function dump_mysql() {
+    branch="$1"
     shift
-    mysqldump \
-        --host="${credentials["HOST"]}" \
-        --user="${credentials["USER"]}" \
-        --password="${credentials["PASS"]}" \
-        --post="${credentials["PORT"]}"\
-        "${credentials["NAME"]}" \
-        "$@"
+    mysqldump --defaults-extra-file="$(mysql_defaults_file "${branch}")" "$@"
 }
 
 #
@@ -116,19 +102,33 @@ function execute_terminus() {
     ${TERMINUS_ROOT}/vendor/bin/terminus "$@"
 }
 
-function pantheon_machine_token() {
-    echo "$(cat "${REPO_ROOT}/files/pantheon-machine-token")"
+#
+# Define the MySQL defaults file
+#
+function mysql_defaults_file() {
+    branch="$1"
+    if [ "" == "${branch}" ]; then
+        branch="${CIRCLE_BRANCH}"
+    fi
+    echo "~/mysql/${branch}-mysql.defaults"
 }
 
 #
 # Capture MySQL credentials given a branch
 #
-function branch_mysql_credentials() {
+function write_mysql_credentials() {
+
+    mkdir -p ~/mysql
+    cd ~/mysql
 
     branch="$1"
     if [ "" == "${branch}" ]; then
         branch="${CIRCLE_BRANCH}"
     fi
+
+    defaults_file="$(mysql_defaults_file "${branch}")"
+
+    echo "[client]" > ${defaults_file}
 
     credentials="$(execute_terminus connection:info "wabe.${branch}" --fields=* | grep MySQL)"
 
@@ -140,28 +140,25 @@ function branch_mysql_credentials() {
         name="$(trim "${credential:8:10}")"
         value="$(trim "${credential:19}")"
         case "${name}" in
-            Command) element="CMD"
+            Host) property="host"
                 ;;
-            Host) element="HOST"
+            Username) property="user"
                 ;;
-            Username) element="USER"
+            Password) property="password"
                 ;;
-            Password) element="PASS"
+            Port) property="port"
                 ;;
-            URL) element="URL"
+            Database) property="database"
                 ;;
-            Port) element="PORT"
+            *) property=""
                 ;;
-            Database) element="NAME"
-                ;;
+
         esac
-
-        assignments="${assignments} [${element}]=\"${value}\""
+        if [ "" != "${property}" ] ; then
+            echo "${property}=\"${value}\"" >> ${defaults_file}
+        fi
     done
-
-    echo "${assignments}"
 
     IFS="${saveIFS}"
 
 }
-

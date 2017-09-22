@@ -22,20 +22,17 @@ POST_FIELDS="ID, post_author, post_date, post_date_gmt, post_content, post_title
 
 exit 1
 
-preview_credentials="$(branch_mysql_credentials preview)"
+set_mysql_env "preview"
 
 # Add old stories
 announce "Drop existing import posts table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "DROP TABLE IF EXISTS import_posts"
+execute_mysql "DROP TABLE IF EXISTS import_posts"
 
 announce "Create import posts table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "CREATE TABLE import_posts LIKE wp_posts"
+execute_mysql "CREATE TABLE import_posts LIKE wp_posts"
 
 announce "Preparing old stories on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "INSERT INTO import_posts (
+execute_mysql "INSERT INTO import_posts (
         SELECT
             ${POST_FIELDS}
         FROM
@@ -50,8 +47,7 @@ execute_mysql "${preview_credentials}" \
 # Add other post types
 for POST_TYPE in $POST_TYPES; do
     announce "Preparing ${POST_TYPE}s on 'preview'"
-    execute_mysql "${preview_credentials}" \
-        "INSERT INTO import_posts (
+    execute_mysql "INSERT INTO import_posts (
             SELECT
                 ${POST_FIELDS}
             FROM
@@ -64,8 +60,7 @@ done
 
 # Prepare all necessary attachments for our posts that will be  imported
 announce "Preparing attachments on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "INSERT INTO import_posts (
+execute_mysql "INSERT INTO import_posts (
         SELECT
             ${POST_FIELDS}
         FROM
@@ -77,16 +72,13 @@ execute_mysql "${preview_credentials}" \
 
 
 announce "Dropping existing import meta table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "DROP TABLE IF EXISTS import_postmeta;"
+execute_mysql "DROP TABLE IF EXISTS import_postmeta;"
 
 announce "Creating import meta table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "CREATE TABLE import_postmeta LIKE wp_postmeta;"
+execute_mysql "CREATE TABLE import_postmeta LIKE wp_postmeta;"
 
 announce "Preparing post meta on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "INSERT INTO import_postmeta (
+execute_mysql "INSERT INTO import_postmeta (
         SELECT
             *
         FROM
@@ -108,37 +100,30 @@ execute_mysql "${preview_credentials}" \
     )"
 
 announce "Drop existing import terms table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "DROP TABLE IF EXISTS import_terms;"
+execute_mysql "DROP TABLE IF EXISTS import_terms;"
 
 announce "Preparing terms on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "CREATE TABLE import_terms LIKE wp_terms;
+execute_mysql "CREATE TABLE import_terms LIKE wp_terms;
         INSERT INTO import_terms (
             SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID}
         )"
 
 announce "Drop existing import term taxonomy table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "DROP TABLE IF EXISTS import_term_taxonomy;"
+execute_mysql "DROP TABLE IF EXISTS import_term_taxonomy;"
 
 announce "Create import term taxonomies table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "CREATE TABLE import_term_taxonomy LIKE wp_term_taxonomy;"
+execute_mysql "CREATE TABLE import_term_taxonomy LIKE wp_term_taxonomy;"
 
 announce "Preparing term taxonomies on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "INSERT INTO import_term_taxonomy (
+execute_mysql "INSERT INTO import_term_taxonomy (
         SELECT * FROM wp_term_taxonomy WHERE term_taxonomy_id >= ${STARTING_TERM_ID}
     )"
 
 announce "Drop existing import term relationships table on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "DROP TABLE IF EXISTS import_term_relationships;"
+execute_mysql "DROP TABLE IF EXISTS import_term_relationships;"
 
 announce "Preparing term relationships on 'preview'"
-execute_mysql "${preview_credentials}" \
-    "CREATE TABLE import_term_relationships AS
+execute_mysql "CREATE TABLE import_term_relationships AS
         SELECT
             *
         FROM
@@ -152,11 +137,10 @@ execute_mysql "${preview_credentials}" \
 
 # Export the package
 announce "Downloading import data package from 'preview'"
-mysql_dump \
-    "${preview_credentials}" \
-    "import_posts" \
-    "import_postmeta" \
-    "import_terms" \
-    "import_term_taxonomy" \
-    "import_term_relationships" \
+dump_mysql preview \
+    import_posts \
+    import_postmeta \
+    import_terms \
+    import_term_taxonomy \
+    import_term_relationships \
     > import_package.sql
