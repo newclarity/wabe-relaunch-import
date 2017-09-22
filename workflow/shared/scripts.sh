@@ -159,11 +159,11 @@ function write_mysql_credentials() {
                 ;;
         esac
         if [ "" != "${property}" ] ; then
-            echo "${property}=\"${value}\"" >> ${defaults_file}
+            echo "${property}=${value}" >> ${defaults_file}
         fi
     done
     echo "[mysql]" >> ${defaults_file}
-    echo "database=\"${database}\"" >> ${defaults_file}
+    echo "database=${database}" >> ${defaults_file}
 
     IFS="${saveIFS}"
 
