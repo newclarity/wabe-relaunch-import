@@ -18,7 +18,7 @@ mysql_import "$(branch_credentials)" import_package.sql
 # Add some sanity checks here
 #
 announce "Preparing import data to assure no conflicting IDs...";
-${REPO_ROOT}/vendor/bin/terminus wp wabe.import -- wabe-prepare-import
+execute_terminus wp wabe.import -- wabe-prepare-import
 
 announce "Importing posts..."
 mysql_exec "$(branch_credentials)" \
@@ -41,7 +41,7 @@ mysql_exec "$(branch_credentials)" \
     "INSERT INTO wp_term_relationships (SELECT * FROM import_term_relationships)"
 
 announce "Importing posts into live tables..."
-${REPO_ROOT}/vendor/bin/terminus wp wabe.import wabe-import
+execute_terminus wp wabe.import wabe-import
 
 # Set the home page setting
 

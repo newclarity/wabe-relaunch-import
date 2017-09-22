@@ -59,60 +59,45 @@ onError
 #GIT_URL="${GIT_USER}@${GIT_REPO}"
 #announce "Git branch is ${CIRCLE_BRANCH}; URL is ${GIT_URL}"
 
-
-function s2a {
-    a="$1"
-    array=""
-    for s in $a; do
-        key="$(trim "${s%%=*}")"
-        val="$(trim "${s##*=}")"
-        array="["${key}"]="${val}" ${array}"
-    done
-    echo "${array}"
-}
-
 # https://stackoverflow.com/a/12973694/102699
 function trim {
     echo "$1" | xargs
 }
 
 
-function mysql_execute() {
-    declare -A credentials
-    eval credentials=("$(s2a "$1")")
+function execute_mysql() {
+    declare -A "credentials=($1)"
     mysql \
-        --host="${credentials[HOST]}" \
-        --user="${credentials[USER]}" \
-        --password="${credentials[PASS]}" \
-        --port="${credentials[PORT]}"\
-        "${credentials[NAME]}" \
+        --host="${credentials["HOST"]}" \
+        --user="${credentials["USER"]}" \
+        --password="${credentials["PASS"]}" \
+        --port="${credentials["PORT"]}"\
+        "${credentials["NAME"]}" \
         --execute="$2"
 }
 
 function mysql_import() {
-    declare -A credentials
-    eval credentials=("$(s2a "$1")")
+    declare -A "credentials=($1)"
     import_file="$2"
     mysql \
-        --host="${credentials[HOST]}" \
-        --user="${credentials[USER]}" \
-        --password="${credentials[PASS]}" \
-        --port="${credentials[PORT]}"\
-        "${credentials[NAME]}" \
+        --host="${credentials["HOST"]}" \
+        --user="${credentials["USER"]}" \
+        --password="${credentials["PASS"]}" \
+        --port="${credentials["PORT"]}"\
+        "${credentials["NAME"]}" \
         < $import_file
 }
 
 
 function mysql_dump() {
-    declare -A credentials
-    eval credentials=("$(s2a "$1")")
+    declare -A "credentials=($1)"
     shift
     mysqldump \
-        --host="${credentials[HOST]}" \
-        --user="${credentials[USER]}" \
-        --password="${credentials[PASS]}" \
-        --post="${credentials[PORT]}"\
-        "${credentials[NAME]}" \
+        --host="${credentials["HOST"]}" \
+        --user="${credentials["USER"]}" \
+        --password="${credentials["PASS"]}" \
+        --post="${credentials["PORT"]}"\
+        "${credentials["NAME"]}" \
         "$@"
 }
 
@@ -127,15 +112,56 @@ function dereference() {
     echo "$(eval echo "\$${varname}")"
 }
 
-#
-# Capture MySQL credentials based on branch
-#
-function branch_credentials() {
-    #
-    # Uppercase CIRCLE_BRANCH
-    # Dereference credentials to get value of credentials
-    #
-    echo "$(dereference "${CIRCLE_BRANCH^^}_CREDENTIALS")"
+function execute_terminus() {
+    ${REPO_ROOT}/vendor/bin/terminus "$@"
 }
 
-BRANCH_CREDENTIALS="$(branch_credentials)"
+function pantheon_machine_token() {
+    echo "$(cat "${REPO_ROOT}/files/pantheon-machine-token")"
+}
+
+#
+# Capture MySQL credentials given a branch
+#
+function branch_mysql_credentials() {
+
+    branch="$1"
+    if [ "" == "${branch}" ]; then
+        branch="${CIRCLE_BRANCH}"
+    fi
+
+    credentials="$(execute_terminus connection:info "wabe.${branch}" --fields=* | grep MySQL)"
+
+    saveIFS="${IFS}"
+    IFS=$'\n'
+
+    assignments=""
+    for credential in ${credentials}; do
+        name="$(trim "${credential:8:10}")"
+        value="$(trim "${credential:19}")"
+        case "${name}" in
+            Command) element="CMD"
+                ;;
+            Host) element="HOST"
+                ;;
+            Username) element="USER"
+                ;;
+            Password) element="PASS"
+                ;;
+            URL) element="URL"
+                ;;
+            Port) element="PORT"
+                ;;
+            Database) element="NAME"
+                ;;
+        esac
+
+        assignments="${assignments} [${element}]=\"${value}\""
+    done
+
+    echo "${assignments}"
+
+    IFS="${saveIFS}"
+
+}
+

@@ -2,27 +2,11 @@
 
 declare=${SHARED_SCRIPTS:=}
 
-declare=${OLD_STORY_START_ID:=}
-declare=${OLD_STORY_END_ID:=}
-declare=${OLD_STORY_END_DATE:=}
+declare=${STARTING_POST_ID:=}
+declare=${ENDING_POST_DATE:=}
 
 declare=${POST_TYPES:=}
-declare=${NEW_META_START_ID:=}
-declare=${TERM_ID_START:=}
-
-declare=${IMPORT_POSTS:=}
-declare=${IMPORT_META:=}
-declare=${IMPORT_TERMS:=}
-declare=${IMPORT_TT:=}
-declare=${IMPORT_TR:=}
-
-declare=${SOURCE_POSTS:=}
-declare=${SOURCE_META:=}
-declare=${SOURCE_TERMS:=}
-declare=${SOURCE_TT:=}
-declare=${SOURCE_TR:=}
-
-declare=${PREVIEW_CREDENTIALS:=}
+declare=${STARTING_TERM_ID:=}
 
 source ${SHARED_SCRIPTS}
 
@@ -36,39 +20,42 @@ POST_FIELDS="ID, post_author, post_date, post_date_gmt, post_content, post_title
     to_ping, pinged, post_modified, post_modified_gmt, post_content_filtered, post_parent,
     guid, menu_order, post_type, post_mime_type, comment_count"
 
+exit 1
+
+preview_credentials="$(branch_mysql_credentials preview)"
 
 # Add old stories
-announce "Drop existing import posts table"
-mysql_execute "$(branch_credentials)" \
-    "DROP TABLE IF EXISTS ${IMPORT_POSTS}"
+announce "Drop existing import posts table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "DROP TABLE IF EXISTS import_posts"
 
-announce "Create import posts table"
-mysql_execute "$(branch_credentials)" \
-    "CREATE TABLE ${IMPORT_POSTS} LIKE ${SOURCE_POSTS}"
+announce "Create import posts table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "CREATE TABLE import_posts LIKE wp_posts"
 
-announce "Preparing old stories"
-mysql_execute "$(branch_credentials)" \
-    "INSERT INTO ${IMPORT_POSTS} (
+announce "Preparing old stories on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "INSERT INTO import_posts (
         SELECT
             ${POST_FIELDS}
         FROM
-            ${SOURCE_POSTS}
+            wp_posts
         WHERE 1=1
             AND post_type = 'post'
             AND post_status IN ( 'publish', 'private', 'draft' )
-            AND post_date < '${OLD_STORY_END_DATE}'
-            AND ID >= ${OLD_STORY_START_ID}
+            AND post_date < '${ENDING_POST_DATE}'
+            AND ID >= ${STARTING_POST_ID}
     )"
 
 # Add other post types
 for POST_TYPE in $POST_TYPES; do
-    announce "Preparing ${POST_TYPE}s"
-    mysql_execute "$(branch_credentials)" \
-        "INSERT INTO ${IMPORT_POSTS} (
+    announce "Preparing ${POST_TYPE}s on 'preview'"
+    execute_mysql "${preview_credentials}" \
+        "INSERT INTO import_posts (
             SELECT
                 ${POST_FIELDS}
             FROM
-                ${SOURCE_POSTS}
+                wp_posts
             WHERE 1=1
                 AND post_status = 'publish'
                 AND post_type = '${POST_TYPE}'
@@ -76,36 +63,36 @@ for POST_TYPE in $POST_TYPES; do
 done
 
 # Prepare all necessary attachments for our posts that will be  imported
-announce "Preparing attachments"
-mysql_execute "$(branch_credentials)" \
-    "INSERT INTO ${IMPORT_POSTS} (
+announce "Preparing attachments on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "INSERT INTO import_posts (
         SELECT
             ${POST_FIELDS}
         FROM
-            ${SOURCE_POSTS}
+            wp_posts
         WHERE 1=1
             AND post_type = 'attachment'
-            AND post_parent IN ( SELECT ID FROM ${IMPORT_POSTS} )
+            AND post_parent IN ( SELECT ID FROM import_posts )
     )"
 
 
-announce "Dropping existing import meta table"
-mysql_execute "$(branch_credentials)" \
-    "DROP TABLE IF EXISTS ${IMPORT_META};"
+announce "Dropping existing import meta table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "DROP TABLE IF EXISTS import_postmeta;"
 
-announce "Creating import meta table"
-mysql_execute "$(branch_credentials)" \
-    "CREATE TABLE ${IMPORT_META} LIKE ${SOURCE_META};"
+announce "Creating import meta table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "CREATE TABLE import_postmeta LIKE wp_postmeta;"
 
-announce "Preparing post meta"
-mysql_execute "$(branch_credentials)" \
-    "INSERT INTO ${IMPORT_META} (
+announce "Preparing post meta on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "INSERT INTO import_postmeta (
         SELECT
             *
         FROM
-            ${SOURCE_META}
+            wp_postmeta
         WHERE
-            post_id IN ( SELECT ID FROM ${IMPORT_POSTS} )
+            post_id IN ( SELECT ID FROM import_posts )
         OR
             meta_key IN (
                 'npr_author_xml',
@@ -120,56 +107,56 @@ mysql_execute "$(branch_credentials)" \
             )
     )"
 
-announce "Drop existing import terms table"
-mysql_execute "$(branch_credentials)" \
-    "DROP TABLE IF EXISTS ${IMPORT_TERMS};"
+announce "Drop existing import terms table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "DROP TABLE IF EXISTS import_terms;"
 
-announce "Preparing terms"
-mysql_execute "$(branch_credentials)" \
-    "CREATE TABLE ${IMPORT_TERMS} LIKE ${SOURCE_TERMS};
-        INSERT INTO ${IMPORT_TERMS} (
-            SELECT * FROM ${SOURCE_TERMS} WHERE term_id >= ${TERM_ID_START}
+announce "Preparing terms on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "CREATE TABLE import_terms LIKE wp_terms;
+        INSERT INTO import_terms (
+            SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID}
         )"
 
-announce "Drop existing import term taxonomy table"
-mysql_execute "$(branch_credentials)" \
-    "DROP TABLE IF EXISTS ${IMPORT_TT};"
+announce "Drop existing import term taxonomy table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "DROP TABLE IF EXISTS import_term_taxonomy;"
 
-announce "Create import term taxonomies table"
-mysql_execute "$(branch_credentials)" \
-    "CREATE TABLE ${IMPORT_TT} LIKE ${SOURCE_TT};"
+announce "Create import term taxonomies table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "CREATE TABLE import_term_taxonomy LIKE wp_term_taxonomy;"
 
-announce "Preparing term taxonomies"
-mysql_execute "$(branch_credentials)" \
-    "INSERT INTO ${IMPORT_TT} (
-        SELECT * FROM ${SOURCE_TT} WHERE term_taxonomy_id >= ${TERM_ID_START}
+announce "Preparing term taxonomies on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "INSERT INTO import_term_taxonomy (
+        SELECT * FROM wp_term_taxonomy WHERE term_taxonomy_id >= ${STARTING_TERM_ID}
     )"
 
-announce "Drop existing import term relationships table"
-mysql_execute "$(branch_credentials)" \
-    "DROP TABLE IF EXISTS ${IMPORT_TR};"
+announce "Drop existing import term relationships table on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "DROP TABLE IF EXISTS import_term_relationships;"
 
-announce "Preparing term relationships"
-mysql_execute "$(branch_credentials)" \
-    "CREATE TABLE ${IMPORT_TR} AS
+announce "Preparing term relationships on 'preview'"
+execute_mysql "${preview_credentials}" \
+    "CREATE TABLE import_term_relationships AS
         SELECT
             *
         FROM
-            ${SOURCE_TR}
+            wp_term_relationships
         WHERE
-            term_taxonomy_id >= ${TERM_ID_START}
+            term_taxonomy_id >= ${STARTING_TERM_ID}
         OR
-            object_id IN ( SELECT ID FROM ${IMPORT_POSTS} )"
+            object_id IN ( SELECT ID FROM import_posts )"
 
 # Add Home page configs? OR is this referring to setting the WP "Reading Settings First Page Displays" option?
 
 # Export the package
-announce "Downloading import data package"
+announce "Downloading import data package from 'preview'"
 mysql_dump \
-    "$(branch_credentials)" \
-    "${IMPORT_POSTS}" \
-    "${IMPORT_META}" \
-    "${IMPORT_TERMS}" \
-    "${IMPORT_TT}" \
-    "${IMPORT_TR}" \
+    "${preview_credentials}" \
+    "import_posts" \
+    "import_postmeta" \
+    "import_terms" \
+    "import_term_taxonomy" \
+    "import_term_relationships" \
     > import_package.sql

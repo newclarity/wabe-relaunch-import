@@ -42,56 +42,37 @@ machine:
         INCLUDES_ROOT:  "${WORKFLOW_ROOT}/includes"
 
         
-        
-        OLD_STORY_START_ID:     375000
-        OLD_STORY_END_ID:       407946
-        OLD_STORY_END_DATE:     "2015-10-31"
-        
-        NEW_META_START_ID:      4000000
-        TERM_ID_START:          2000
+        #
+        #  This is from the "old" content from NPR
+        #
+        STARTING_POST_ID:       375000
+        STARTING_META_ID:       4000000
+        STARTING_TERM_ID:       2000
+
+        ENDING_POST_ID:         407946
+        ENDING_POST_DATE:       "2015-10-31"
         
         PANTHEON_SITE_NAME:     "wabe"
         WWW_HOST:               "http://import-wabe.pantheonsite.io"
-
-        IMPORT_POSTS:           "import_posts"
-        IMPORT_META:            "import_postmeta"
-        IMPORT_TERMS:           "import_terms"
-        IMPORT_TT:              "import_term_taxonomy"
-        IMPORT_TR:              "import_term_relationships"
-        
-        SOURCE_POSTS:           "wp_posts"
-        SOURCE_META:            "wp_postmeta"
-        SOURCE_TERMS:           "wp_terms"
-        SOURCE_TT:              "wp_term_taxonomy"
-        SOURCE_TR:              "wp_term_relationships"
-        
-        PREVIEW_CREDENTIALS: |
-            HOST=dbserver.preview.d5981687-a2b6-4a2c-9456-ae933c90b097.drush.in
-            USER=pantheon
-            PASS=5d2c4707db8b42f6900ad610d74ad362
-            PORT=16159
-            NAME=pantheon
-
-        IMPORT_CREDENTIALS: |
-            HOST=dbserver.import.d5981687-a2b6-4a2c-9456-ae933c90b097.drush.in
-            USER=pantheon
-            PASS=ef4d5a6cfe564c0c84b86bfb7013d9d6
-            PORT=11409
-            NAME=pantheon
 
         POST_TYPES: |
             page
             wabe_person
             wabe_show
             wabe_guide
-            wabe_press_release  (name?)
-            wabe_home_config  (name?)
+            wabe_pr
+            wabe_homepage
+            wabe_helptext
+            wabe_featured_slide
             nav-menu-item
 
         TAXONOMIES: |
             wabe_person_role
             wabe_show_genre
+            wabe_show_term
+            wabe_show_type
             wabe_person_role
+            wabe_content_source
 
         OTHER:
             yoast
