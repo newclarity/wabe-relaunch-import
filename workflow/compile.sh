@@ -7,6 +7,9 @@ declare=${ENDING_POST_DATE:=}
 
 declare=${POST_TYPES:=}
 declare=${STARTING_TERM_ID:=}
+declare=${MYSQL_ROOT:=}
+declare=${META_KEYS:=}
+declare=${TAXONOMIES:=}
 
 source ${SHARED_SCRIPTS}
 
@@ -20,6 +23,105 @@ POST_FIELDS="ID, post_author, post_date, post_date_gmt, post_content, post_title
     to_ping, pinged, post_modified, post_modified_gmt, post_content_filtered, post_parent,
     guid, menu_order, post_type, post_mime_type, comment_count"
 
+set_mysql_env "preview"
+
+# Add old stories
+announce "Drop existing import posts table on 'preview'"
+execute_mysql "DROP TABLE IF EXISTS import_posts"
+
+announce "Create import posts table on 'preview'"
+execute_mysql "CREATE TABLE import_posts LIKE wp_posts"
+
+#announce "Preparing old stories on 'preview'"
+#execute_mysql "INSERT INTO import_posts (
+#        SELECT
+#            ${POST_FIELDS}
+#        FROM
+#            wp_posts
+#        WHERE 1=1
+#            AND post_type = 'post'
+#            AND post_status IN ( 'publish', 'private', 'draft' )
+#            AND post_date < '${ENDING_POST_DATE}'
+#            AND ID >= ${STARTING_POST_ID}
+#    )"
+
+
+#
+# Add post types that are primarily sourced on `preview`
+#
+
+post_types="$(quote_mysql_set "${POST_TYPES}")"
+announce "Exporting post types source on 'preview' to import_posts"
+execute_mysql "INSERT INTO import_posts (
+    SELECT
+        ${POST_FIELDS}
+    FROM
+        wp_posts
+    WHERE 1=1
+        AND post_status IN ('publish','private','draft','revision','inherit')
+        AND post_type IN (${post_types})
+    )"
+
+
+# Prepare all necessary attachments for our posts that will be  imported
+announce "Preparing attachments on 'preview'"
+execute_mysql "INSERT INTO import_posts (
+    SELECT
+        ${POST_FIELDS}
+    FROM
+        wp_posts
+    WHERE 1=1
+        AND post_type = 'attachment'
+        AND post_parent IN ( SELECT ID FROM import_posts )
+    )"
+
+
+announce "Dropping existing import meta table on 'preview'"
+execute_mysql "DROP TABLE IF EXISTS import_postmeta;"
+
+announce "Creating import meta table on 'preview'"
+execute_mysql "CREATE TABLE import_postmeta LIKE wp_postmeta;"
+
+meta_keys="$(quote_mysql_set "${META_KEYS}")"
+announce "Preparing post meta on 'preview'"
+execute_mysql "INSERT INTO import_postmeta (
+    SELECT * FROM wp_postmeta WHERE post_id IN (SELECT ID FROM import_posts) OR meta_key IN ( ${meta_keys} )"
+
+announce "Drop existing import terms table on 'preview'"
+execute_mysql "DROP TABLE IF EXISTS import_terms;"
+
+taxonomies="$(quote_mysql_set "${TAXONOMIES}")"
+announce "Preparing terms on 'preview'"
+execute_mysql "CREATE TABLE import_terms LIKE wp_terms;
+    INSERT INTO import_terms
+    SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID} OR term_id IN (
+        SELECT term_id FROM wp_term_taxonomy WHERE taxonomy IN {${taxonomies})
+    )"
+
+announce "Drop existing import term taxonomy table on 'preview'"
+execute_mysql "DROP TABLE IF EXISTS import_term_taxonomy;"
+
+announce "Create import term taxonomies table on 'preview'"
+execute_mysql "CREATE TABLE import_term_taxonomy LIKE wp_term_taxonomy;"
+
+announce "Preparing term taxonomies on 'preview'"
+execute_mysql "INSERT INTO import_term_taxonomy
+    SELECT * FROM wp_term_taxonomy WHERE term_taxonomy_id>=${STARTING_TERM_ID} OR term_id IN (SELECT term_id FROM import_terms)"
+
+announce "Drop existing import term relationships table on 'preview'"
+execute_mysql "DROP TABLE IF EXISTS import_term_relationships;"
+
+announce "Create import term relationships table on 'preview'"
+execute_mysql "CREATE TABLE import_term_relationships LIKE wp_term_relationships;"
+
+announce "Preparing term relationships on 'preview'"
+execute_mysql "INSERT INTO import_term_relationships
+    SELECT * FROM wp_term_relationships WHERE term_taxonomy_id>=${STARTING_TERM_ID}
+        OR object_id IN (SELECT ID FROM import_posts)
+        OR term_taxonomy_id IN (SELECT term_taxonomy_id FROM import_term_taxonomy) "
+
+# Add Home page configs? OR is this referring to setting the WP "Reading Settings First Page Displays" option?
+
 # Export the package
 announce "Downloading import data package from 'preview'"
 dump_mysql preview \
@@ -32,131 +134,11 @@ dump_mysql preview \
     old_terms \
     old_term_taxonomy \
     old_term_relationships \
-    > old_content_package.sql
-
-
-
-exit 1
-
-set_mysql_env "preview"
-
-# Add old stories
-announce "Drop existing import posts table on 'preview'"
-execute_mysql "DROP TABLE IF EXISTS import_posts"
-
-announce "Create import posts table on 'preview'"
-execute_mysql "CREATE TABLE import_posts LIKE wp_posts"
-
-announce "Preparing old stories on 'preview'"
-execute_mysql "INSERT INTO import_posts (
-        SELECT
-            ${POST_FIELDS}
-        FROM
-            wp_posts
-        WHERE 1=1
-            AND post_type = 'post'
-            AND post_status IN ( 'publish', 'private', 'draft' )
-            AND post_date < '${ENDING_POST_DATE}'
-            AND ID >= ${STARTING_POST_ID}
-    )"
-
-# Add other post types
-for POST_TYPE in $POST_TYPES; do
-    announce "Preparing ${POST_TYPE}s on 'preview'"
-    execute_mysql "INSERT INTO import_posts (
-            SELECT
-                ${POST_FIELDS}
-            FROM
-                wp_posts
-            WHERE 1=1
-                AND post_status = 'publish'
-                AND post_type = '${POST_TYPE}'
-        )"
-done
-
-# Prepare all necessary attachments for our posts that will be  imported
-announce "Preparing attachments on 'preview'"
-execute_mysql "INSERT INTO import_posts (
-        SELECT
-            ${POST_FIELDS}
-        FROM
-            wp_posts
-        WHERE 1=1
-            AND post_type = 'attachment'
-            AND post_parent IN ( SELECT ID FROM import_posts )
-    )"
-
-
-announce "Dropping existing import meta table on 'preview'"
-execute_mysql "DROP TABLE IF EXISTS import_postmeta;"
-
-announce "Creating import meta table on 'preview'"
-execute_mysql "CREATE TABLE import_postmeta LIKE wp_postmeta;"
-
-announce "Preparing post meta on 'preview'"
-execute_mysql "INSERT INTO import_postmeta (
-        SELECT
-            *
-        FROM
-            wp_postmeta
-        WHERE
-            post_id IN ( SELECT ID FROM import_posts )
-        OR
-            meta_key IN (
-                'npr_author_xml',
-                'npr_story_xml',
-                '_wabe_story_authors',
-                '_wabe_attribution_processed',
-                '_wabe_authors_imported_from_xml',
-                '_wabe_photo_agency',
-                '_wabe_photo_agency_url',
-                '_wabe_photo_credit',
-                '_wabe_photo_npr_image_id'
-            )
-    )"
-
-announce "Drop existing import terms table on 'preview'"
-execute_mysql "DROP TABLE IF EXISTS import_terms;"
-
-announce "Preparing terms on 'preview'"
-execute_mysql "CREATE TABLE import_terms LIKE wp_terms;
-        INSERT INTO import_terms (
-            SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID}
-        )"
-
-announce "Drop existing import term taxonomy table on 'preview'"
-execute_mysql "DROP TABLE IF EXISTS import_term_taxonomy;"
-
-announce "Create import term taxonomies table on 'preview'"
-execute_mysql "CREATE TABLE import_term_taxonomy LIKE wp_term_taxonomy;"
-
-announce "Preparing term taxonomies on 'preview'"
-execute_mysql "INSERT INTO import_term_taxonomy (
-        SELECT * FROM wp_term_taxonomy WHERE term_taxonomy_id >= ${STARTING_TERM_ID}
-    )"
-
-announce "Drop existing import term relationships table on 'preview'"
-execute_mysql "DROP TABLE IF EXISTS import_term_relationships;"
-
-announce "Preparing term relationships on 'preview'"
-execute_mysql "CREATE TABLE import_term_relationships AS
-        SELECT
-            *
-        FROM
-            wp_term_relationships
-        WHERE
-            term_taxonomy_id >= ${STARTING_TERM_ID}
-        OR
-            object_id IN ( SELECT ID FROM import_posts )"
-
-# Add Home page configs? OR is this referring to setting the WP "Reading Settings First Page Displays" option?
-
-# Export the package
-announce "Downloading import data package from 'preview'"
-dump_mysql preview \
     import_posts \
     import_postmeta \
     import_terms \
     import_term_taxonomy \
     import_term_relationships \
-    > import_package.sql
+    > ${MYSQL_ROOT}/import_package.sql
+
+exit 1

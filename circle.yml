@@ -42,6 +42,7 @@ machine:
         PROVIDERS_ROOT: "${WORKFLOW_ROOT}/providers"
         INCLUDES_ROOT:  "${WORKFLOW_ROOT}/includes"
         TERMINUS_ROOT:  "${HOME}/terminus"
+        MYSQL_ROOT:     "${HOME}/mysql"
 
         
         #
@@ -67,6 +68,17 @@ machine:
             wabe_helptext
             wabe_featured_slide
             nav-menu-item
+
+        META_KEYS: |
+            npr_author_xml
+            npr_story_xml
+            _wabe_story_authors
+            _wabe_attribution_processed
+            _wabe_authors_imported_from_xml
+            _wabe_photo_agency
+            _wabe_photo_agency_url
+            _wabe_photo_credit
+            _wabe_photo_npr_image_id
 
         TAXONOMIES: |
             wabe_person_role
