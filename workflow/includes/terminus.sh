@@ -13,7 +13,7 @@ if ! [ -d terminus ]; then
 
     # Authenticate to Pantheon
     announce "Authenticating with Pantheon via machine token"
-    execcute_terminus auth:login --machine-token="$(pantheon_machine_token)"
+    execute_terminus auth:login --machine-token="$(pantheon_machine_token)"
 
 fi
 announce "Setting alias to Pantheon's Terminus CLI"
