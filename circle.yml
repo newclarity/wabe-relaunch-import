@@ -54,6 +54,7 @@ machine:
         ENDING_POST_DATE:       "2015-10-31"
         
         PANTHEON_SITE_NAME:     "wabe"
+        PANTHEON_MACHINE_TOKEN: "db4NKbw3H5XBxLYc5OGB0QOlLimfEDcGpOOGKllgWIyc8"
         WWW_HOST:               "http://import-wabe.pantheonsite.io"
 
         POST_TYPES: |
