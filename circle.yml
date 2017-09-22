@@ -113,7 +113,7 @@ compile:
         - workflow/compile.sh
 
     post:
-        - devops/core/deployment.sh
+        workflow/deployment.sh
 
 
 test:
@@ -126,6 +126,6 @@ deployment:
   deploy:
     branch: /.+/
     commands:
-    - devops/core/deployment.sh
+    - workflow/deployment.sh
 
 
