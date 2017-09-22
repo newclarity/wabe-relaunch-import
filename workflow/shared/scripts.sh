@@ -62,10 +62,11 @@ function import_mysql() {
 
 function dump_mysql() {
     branch="$1"
+    set_mysql_env "${branch}"
     shift
     mysqldump \
-        --defaults-extra-file="$(get_mysql_defaults_file "${branch}")"
-        "$(get_database_name "${branch}")"
+        --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" \
+        "$(get_database_name "${branch}")" \
         "$@"
 }
 
@@ -156,7 +157,7 @@ function write_mysql_credentials() {
                 ;;
             mysql_port) property="port"
                 ;;
-            mysql_database) property="database"
+            mysql_database) #property="database"
                 ;;
             *) property=""
                 ;;
