@@ -128,6 +128,7 @@ function write_mysql_credentials() {
     curl "$(get_website_url "${branch}")"
 
     credentials="$(execute_terminus connection:info "wabe.${branch}" --fields=* | grep MySQL)"
+    echo "${credentials}"
 
     saveIFS="${IFS}"
     IFS=$'\n'
