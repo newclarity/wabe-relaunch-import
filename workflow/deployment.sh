@@ -4,16 +4,27 @@ declare=${SHARED_SCRIPTS:=}
 declare=${CIRCLE_BRANCH:=}
 declare=${REPO_ROOT:=}
 
-
 source "${SHARED_SCRIPTS}"
 
-set_mysql_env "${CIRCLE_BRANCH}"
+DEPLOY_BRANCH="${CIRCLE_BRANCH}"
+
+set_mysql_env "${DEPLOY_BRANCH}"
+
+if [ "master" != "${DEPLOY_BRANCH}" ]; then
+    announce "Cloning database from production to ${DEPLOY_BRANCH}."
+    execute_terminus env:clone-content wabe.live "${DEPLOY_BRANCH}" --db-only --no-interaction --yes
+
+    announce "Cloning upload files from production to ${DEPLOY_BRANCH}."
+    execute_terminus env:clone-content wabe.live "${DEPLOY_BRANCH}" --files-only --no-interaction --yes
+fi
 
 #
 #
 #
 announce "Adding import tables to working database..."
 import_mysql < import_package.sql
+
+
 
 #
 # Add some sanity checks here
