@@ -43,22 +43,6 @@ echo . > $ARTIFACTS_FILE
 onError
 
 
-#
-# Set the Git user and repo based on the branch
-#
-#case "${CIRCLE_BRANCH}" in
-#    master)
-#        GIT_USER="${PROD_GIT_USER}"
-#        GIT_REPO="${PROD_GIT_REPO}"
-#        ;;
-#    qa)
-#        GIT_USER="${QA_GIT_USER}"
-#        GIT_REPO="${QA_GIT_REPO}"
-#        ;;
-#esac
-#GIT_URL="${GIT_USER}@${GIT_REPO}"
-#announce "Git branch is ${CIRCLE_BRANCH}; URL is ${GIT_URL}"
-
 # https://stackoverflow.com/a/12973694/102699
 function trim {
     echo "$1" | xargs
@@ -151,7 +135,7 @@ function write_mysql_credentials() {
     assignments=""
     for credential in ${credentials}; do
         name="$(trim "${credential:8:10}")"
-        value="$(trim "${credential:19}")"
+        value="$(trim "${credential:19:128}")"
         case "${name}" in
             Host) property="host"
                 ;;
