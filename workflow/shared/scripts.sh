@@ -52,6 +52,7 @@ function execute_mysql() {
 
 function import_mysql() {
     branch="$(get_mysql_env "$1")"
+    set_mysql_env "${branch}"
     wakeup_website "${branch}"
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")"
 }
