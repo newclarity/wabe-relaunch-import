@@ -123,8 +123,8 @@ function get_website_url() {
 #
 function wakeup_website() {
     branch="$(get_mysql_env "$1")"
-    url="$(get_website_url "$1")/robots.txt"
-    curl "${url}" 2>&1 /dev/null  
+    url="$(get_website_url "${branch}")/robots.txt"
+    curl --fail "${url}" 2>&1 > /dev/null
 }
 
 #
@@ -142,8 +142,6 @@ function write_mysql_credentials() {
     defaults_file="$(get_mysql_defaults_file "${branch}")"
 
     echo "[client]" > ${defaults_file}
-
-    curl "$(get_website_url "${branch}")"
 
     credentials="$(execute_terminus connection:info "wabe.${branch}" --fields=* --format=yaml | grep mysql_ )"
 

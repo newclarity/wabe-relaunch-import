@@ -84,8 +84,8 @@ execute_mysql "CREATE TABLE import_postmeta LIKE wp_postmeta;"
 
 meta_keys="$(quote_mysql_set "${META_KEYS}")"
 announce "Preparing post meta on 'preview'"
-execute_mysql "INSERT INTO import_postmeta (
-    SELECT * FROM wp_postmeta WHERE post_id IN (SELECT ID FROM import_posts) OR meta_key IN ( ${meta_keys} )"
+execute_mysql "INSERT INTO import_postmeta
+    SELECT * FROM wp_postmeta WHERE post_id IN (SELECT ID FROM import_posts) OR meta_key IN ( ${meta_keys} );"
 
 announce "Drop existing import terms table on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS import_terms;"
@@ -96,7 +96,7 @@ execute_mysql "CREATE TABLE import_terms LIKE wp_terms;
     INSERT INTO import_terms
     SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID} OR term_id IN (
         SELECT term_id FROM wp_term_taxonomy WHERE taxonomy IN {${taxonomies})
-    )"
+    );"
 
 announce "Drop existing import term taxonomy table on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS import_term_taxonomy;"
