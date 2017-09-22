@@ -157,7 +157,7 @@ function write_mysql_credentials() {
                 ;;
             mysql_port) property="port"
                 ;;
-            mysql_database) #property="database"
+            mysql_database) property="" #property="database"
                 ;;
             *) property=""
                 ;;
