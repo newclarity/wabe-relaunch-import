@@ -54,9 +54,10 @@ machine:
 
         ENDING_POST_ID:         407946
         ENDING_POST_DATE:       "2015-10-31"
-        
 
         MYSQL_ENV:              "{$CIRCLE_BRANCH}"
+
+        IMPORT_PACKAGE_FILE     "${MYSQL_ROOT}/import_package.sql"
 
         POST_TYPES: |
             page
@@ -102,6 +103,7 @@ machine:
 dependencies:
     cache_directories:
         - ~/terminus
+        - ~/mysql
 
     override:
         - workflow/dependencies.sh

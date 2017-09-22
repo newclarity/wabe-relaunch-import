@@ -124,7 +124,11 @@ function get_website_url() {
 function wakeup_website() {
     branch="$(get_mysql_env "$1")"
     url="$(get_website_url "${branch}")/robots.txt"
-    curl --fail "${url}" 2>&1 > /dev/null
+
+    #
+    # -s disables progress status: https://stackoverflow.com/a/7373922/102699
+    #
+    curl -ss --fail "${url}" 2>&1 > /dev/null
 }
 
 #

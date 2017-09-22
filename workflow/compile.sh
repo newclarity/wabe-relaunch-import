@@ -10,9 +10,16 @@ declare=${STARTING_TERM_ID:=}
 declare=${MYSQL_ROOT:=}
 declare=${META_KEYS:=}
 declare=${TAXONOMIES:=}
+declare=${IMPORT_PACKAGE_FILE:=}
 
 source ${SHARED_SCRIPTS}
 
+if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
+    announce "Using cached ${IMPORT_PACKAGE_FILE}"
+    return
+else
+    announce "Created and then caching ${IMPORT_PACKAGE_FILE}"
+fi
 
 #
 # This is due to a strange behavior where using the '*' in
@@ -26,13 +33,13 @@ POST_FIELDS="ID, post_author, post_date, post_date_gmt, post_content, post_title
 set_mysql_env "preview"
 
 # Add old stories
-announce "Drop existing import posts table on 'preview'"
+announce "...Drop existing import posts table on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS import_posts"
 
-announce "Create import posts table on 'preview'"
+announce "...Create import posts table on 'preview'"
 execute_mysql "CREATE TABLE import_posts LIKE wp_posts"
 
-#announce "Preparing old stories on 'preview'"
+#announce "...Preparing old stories on 'preview'"
 #execute_mysql "INSERT INTO import_posts (
 #        SELECT
 #            ${POST_FIELDS}
@@ -51,7 +58,7 @@ execute_mysql "CREATE TABLE import_posts LIKE wp_posts"
 #
 
 post_types="$(quote_mysql_set "${POST_TYPES}")"
-announce "Exporting post types source on 'preview' to import_posts"
+announce "...Exporting post types source on 'preview' to import_posts"
 execute_mysql "INSERT INTO import_posts (
     SELECT
         ${POST_FIELDS}
@@ -64,7 +71,7 @@ execute_mysql "INSERT INTO import_posts (
 
 
 # Prepare all necessary attachments for our posts that will be  imported
-announce "Preparing attachments on 'preview'"
+announce "...Preparing attachments on 'preview'"
 execute_mysql "INSERT INTO import_posts (
     SELECT
         ${POST_FIELDS}
@@ -76,45 +83,45 @@ execute_mysql "INSERT INTO import_posts (
     )"
 
 
-announce "Dropping existing import meta table on 'preview'"
+announce "...Dropping existing import meta table on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS import_postmeta;"
 
-announce "Creating import meta table on 'preview'"
+announce "...Creating import meta table on 'preview'"
 execute_mysql "CREATE TABLE import_postmeta LIKE wp_postmeta;"
 
 meta_keys="$(quote_mysql_set "${META_KEYS}")"
-announce "Preparing post meta on 'preview'"
+announce "...Preparing post meta on 'preview'"
 execute_mysql "INSERT INTO import_postmeta
     SELECT * FROM wp_postmeta WHERE post_id IN (SELECT ID FROM import_posts) OR meta_key IN ( ${meta_keys} );"
 
-announce "Drop existing import terms table on 'preview'"
+announce "...Drop existing import terms table on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS import_terms;"
 
 taxonomies="$(quote_mysql_set "${TAXONOMIES}")"
-announce "Preparing terms on 'preview'"
+announce "...Preparing terms on 'preview'"
 execute_mysql "CREATE TABLE import_terms LIKE wp_terms;
     INSERT INTO import_terms
     SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID} OR term_id IN (
         SELECT term_id FROM wp_term_taxonomy WHERE taxonomy IN (${taxonomies})
     );"
 
-announce "Drop existing import term taxonomy table on 'preview'"
+announce "...Drop existing import term taxonomy table on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS import_term_taxonomy;"
 
-announce "Create import term taxonomies table on 'preview'"
+announce "...Create import term taxonomies table on 'preview'"
 execute_mysql "CREATE TABLE import_term_taxonomy LIKE wp_term_taxonomy;"
 
-announce "Preparing term taxonomies on 'preview'"
+announce "...Preparing term taxonomies on 'preview'"
 execute_mysql "INSERT INTO import_term_taxonomy
     SELECT * FROM wp_term_taxonomy WHERE term_taxonomy_id>=${STARTING_TERM_ID} OR term_id IN (SELECT term_id FROM import_terms)"
 
-announce "Drop existing import term relationships table on 'preview'"
+announce "...Drop existing import term relationships table on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS import_term_relationships;"
 
-announce "Create import term relationships table on 'preview'"
+announce "...Create import term relationships table on 'preview'"
 execute_mysql "CREATE TABLE import_term_relationships LIKE wp_term_relationships;"
 
-announce "Preparing term relationships on 'preview'"
+announce "...Preparing term relationships on 'preview'"
 execute_mysql "INSERT INTO import_term_relationships
     SELECT * FROM wp_term_relationships WHERE term_taxonomy_id>=${STARTING_TERM_ID}
         OR object_id IN (SELECT ID FROM import_posts)
@@ -123,7 +130,7 @@ execute_mysql "INSERT INTO import_term_relationships
 # Add Home page configs? OR is this referring to setting the WP "Reading Settings First Page Displays" option?
 
 # Export the package
-announce "Downloading import data package from 'preview'"
+announce "...Creating ${IMPORT_PACKAGE_FILE} from 'preview'"
 dump_mysql preview \
     old_api_links \
     old_posts \
@@ -139,6 +146,6 @@ dump_mysql preview \
     import_terms \
     import_term_taxonomy \
     import_term_relationships \
-    > ${MYSQL_ROOT}/import_package.sql
+    > ${IMPORT_PACKAGE_FILE}
 
-exit 1
+announce "Import package ${IMPORT_PACKAGE_FILE} created"
