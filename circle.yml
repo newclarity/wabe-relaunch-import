@@ -55,7 +55,6 @@ machine:
         
         PANTHEON_SITE_NAME:     "wabe"
         PANTHEON_MACHINE_TOKEN: "db4NKbw3H5XBxLYc5OGB0QOlLimfEDcGpOOGKllgWIyc8"
-        WWW_HOST:               "http://import-wabe.pantheonsite.io"
 
         MYSQL_ENV:              "{$CIRCLE_BRANCH}"
 

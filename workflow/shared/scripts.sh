@@ -72,19 +72,19 @@ function set_mysql_env() {
 
 function execute_mysql() {
     branch="${2:-${MYSQL_ENV}}"
-    mysql --defaults-extra-file="$(mysql_defaults_file "${branch}")" --execute="$1"
+    mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1"
 }
 
 function import_mysql() {
     import_file="$1"
     branch="${2:-${MYSQL_ENV}}"
-    mysql --defaults-extra-file="$(mysql_defaults_file "${branch}")" < $import_file
+    mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" < $import_file
 }
 
 function dump_mysql() {
     branch="$1"
     shift
-    mysqldump --defaults-extra-file="$(mysql_defaults_file "${branch}")" "$@"
+    mysqldump --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" "$@"
 }
 
 #
@@ -105,12 +105,23 @@ function execute_terminus() {
 #
 # Define the MySQL defaults file
 #
-function mysql_defaults_file() {
+function get_mysql_defaults_file() {
     branch="$1"
     if [ "" == "${branch}" ]; then
         branch="${CIRCLE_BRANCH}"
     fi
-    echo "~/mysql/${branch}-mysql.defaults"
+    echo "${HOME}/mysql/${branch}-mysql.defaults"
+}
+
+#
+# Get URL of website for a given branch
+#
+function get_website_url() {
+    branch="$1"
+    if [ "" == "${branch}" ]; then
+        branch="${CIRCLE_BRANCH}"
+    fi
+    echo "http://${branch}-wabe.pantheonsite.io"
 }
 
 #
@@ -118,17 +129,19 @@ function mysql_defaults_file() {
 #
 function write_mysql_credentials() {
 
-    mkdir -p ~/mysql
-    cd ~/mysql
+    mkdir -p "${HOME}/mysql"
+    cd "${HOME}/mysql"
 
     branch="$1"
     if [ "" == "${branch}" ]; then
         branch="${CIRCLE_BRANCH}"
     fi
 
-    defaults_file="$(mysql_defaults_file "${branch}")"
+    defaults_file="$(get_mysql_defaults_file "${branch}")"
 
     echo "[client]" > ${defaults_file}
+
+    curl "$(get_website_url "${branch}")"
 
     credentials="$(execute_terminus connection:info "wabe.${branch}" --fields=* | grep MySQL)"
 
@@ -152,7 +165,6 @@ function write_mysql_credentials() {
                 ;;
             *) property=""
                 ;;
-
         esac
         if [ "" != "${property}" ] ; then
             echo "${property}=\"${value}\"" >> ${defaults_file}
