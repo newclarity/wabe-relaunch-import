@@ -151,6 +151,8 @@ function write_mysql_credentials() {
                 ;;
         esac
         if [ "" != "${property}" ] ; then
+            echo "${credential}"
+            echo "${property}=\"${value}\""
             echo "${property}=\"${value}\"" >> ${defaults_file}
         fi
     done
