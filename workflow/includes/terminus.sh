@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 
-declare=${PANTHEON_MACHINE_TOKEN:=}
-declare=${REPO_ROOT:=}
-
 # @link https://pantheon.io/docs/terminus
 
-cd "{$HOME}"
+cd ~/
 if ! [ -d terminus ]; then
     mkdir -p terminus
     cd terminus
@@ -19,6 +16,5 @@ if ! [ -d terminus ]; then
     execcute_terminus auth:login --machine-token="$(pantheon_machine_token)"
 
 fi
-
-announce "Setting alias to Pantheo's terminus"
-alias terminus="{$HOME}/terminus/vendor/bin/terminus"
+announce "Setting alias to Pantheon's Terminus CLI"
+alias terminus=~/terminus/vendor/bin/terminus
