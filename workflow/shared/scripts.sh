@@ -94,8 +94,8 @@ function get_database_name() {
         branch="${MYSQL_ENV}"
     fi
     defaults_file="$(get_mysql_defaults_file "${branch}")"
-    database="$(cat "${defaults_file}" | grep mysql_database)"
-    echo "$(trim "${database#* }")"
+    database="$(cat "${defaults_file}" | grep "database=")"
+    echo "${database#*=}"
 }
 
 #
@@ -157,7 +157,9 @@ function write_mysql_credentials() {
                 ;;
             mysql_port) property="port"
                 ;;
-            mysql_database) property="" #property="database"
+            mysql_database)
+                property=""
+                database="{$value}"
                 ;;
             *) property=""
                 ;;
@@ -166,6 +168,8 @@ function write_mysql_credentials() {
             echo "${property}=\"${value}\"" >> ${defaults_file}
         fi
     done
+    echo "[mysql]" >> ${defaults_file}
+    echo "${database}=\"${database}\"" >> ${defaults_file}
 
     IFS="${saveIFS}"
 
