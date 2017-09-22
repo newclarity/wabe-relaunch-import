@@ -3,15 +3,10 @@
 # workflow/shared/scripts.sh - Includes files for source
 #
 
-declare=${REPO_ROOT:=}
 declare=${CIRCLE_BRANCH:=}
-declare=${PROD_GIT_USER:=}
-declare=${PROD_GIT_REPO:=}
-declare=${QA_GIT_USER:=}
-declare=${QA_GIT_REPO:=}
-declare=${ARTIFACTS_FILE:=}
 declare=${CIRCLE_ARTIFACTS:=}
 declare=${TERMINUS_ROOT:=}
+declare=${PANTHEON_SITE_NAME:=}
 
 #
 # Set artifacts file for this script
@@ -68,7 +63,10 @@ function import_mysql() {
 function dump_mysql() {
     branch="$1"
     shift
-    mysqldump --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" "$@"
+    mysqldump \
+        --defaults-extra-file="$(get_mysql_defaults_file "${branch}")"
+        "$(get_database_name "${branch}")"
+        "$@"
 }
 
 #
@@ -89,10 +87,23 @@ function execute_terminus() {
 #
 # Define the MySQL defaults file
 #
+function get_database_name() {
+    branch="$1"
+    if [ "" == "${branch}" ]; then
+        branch="${MYSQL_ENV}"
+    fi
+    defaults_file="$(get_mysql_defaults_file "${branch}")"
+    database="$(cat "${defaults_file}" | grep mysql_database)"
+    echo "$(trim "${database#* }")"
+}
+
+#
+# Define the MySQL defaults file
+#
 function get_mysql_defaults_file() {
     branch="$1"
     if [ "" == "${branch}" ]; then
-        branch="${CIRCLE_BRANCH}"
+        branch="${MYSQL_ENV}"
     fi
     echo "${HOME}/mysql/${branch}-mysql.defaults"
 }
@@ -103,9 +114,9 @@ function get_mysql_defaults_file() {
 function get_website_url() {
     branch="$1"
     if [ "" == "${branch}" ]; then
-        branch="${CIRCLE_BRANCH}"
+        branch="${MYSQL_ENV}"
     fi
-    echo "http://${branch}-wabe.pantheonsite.io"
+    echo "http://${branch}-${PANTHEON_SITE_NAME}.pantheonsite.io"
 }
 
 #
@@ -118,7 +129,7 @@ function write_mysql_credentials() {
 
     branch="$1"
     if [ "" == "${branch}" ]; then
-        branch="${CIRCLE_BRANCH}"
+        branch="${MYSQL_ENV}"
     fi
 
     defaults_file="$(get_mysql_defaults_file "${branch}")"

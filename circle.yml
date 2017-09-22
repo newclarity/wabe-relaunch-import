@@ -11,9 +11,10 @@ machine:
     environment:
 
         #
-        # Define the Deployment provider
+        # Define the Pantheon Site Name
         #
-        DEPLOY_PROVIDER:  "pantheon"
+        PANTHEON_SITE_NAME:  "wabe"
+        PANTHEON_MACHINE_TOKEN: "db4NKbw3H5XBxLYc5OGB0QOlLimfEDcGpOOGKllgWIyc8"
 
         #
         # The database credentials for WordPress on CircleCI
@@ -53,8 +54,6 @@ machine:
         ENDING_POST_ID:         407946
         ENDING_POST_DATE:       "2015-10-31"
         
-        PANTHEON_SITE_NAME:     "wabe"
-        PANTHEON_MACHINE_TOKEN: "db4NKbw3H5XBxLYc5OGB0QOlLimfEDcGpOOGKllgWIyc8"
 
         MYSQL_ENV:              "{$CIRCLE_BRANCH}"
 

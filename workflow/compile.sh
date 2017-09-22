@@ -20,6 +20,22 @@ POST_FIELDS="ID, post_author, post_date, post_date_gmt, post_content, post_title
     to_ping, pinged, post_modified, post_modified_gmt, post_content_filtered, post_parent,
     guid, menu_order, post_type, post_mime_type, comment_count"
 
+# Export the package
+announce "Downloading import data package from 'preview'"
+dump_mysql preview \
+    old_api_links \
+    old_posts \
+    old_postmeta \
+    old_show_posts \
+    old_story_ids \
+    old_story_xml \
+    old_terms \
+    old_term_taxonomy \
+    old_term_relationships \
+    > old_content_package.sql
+
+
+
 exit 1
 
 set_mysql_env "preview"
