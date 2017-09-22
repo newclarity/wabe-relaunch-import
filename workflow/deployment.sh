@@ -7,12 +7,13 @@ declare=${REPO_ROOT:=}
 
 source "${SHARED_SCRIPTS}"
 
+set_mysql_env "${CIRCLE_BRANCH}"
 
 #
 #
 #
 announce "Adding import tables to working database..."
-import_mysql import_package.sql "${CIRCLE_BRANCH}"
+import_mysql < import_package.sql
 
 #
 # Add some sanity checks here

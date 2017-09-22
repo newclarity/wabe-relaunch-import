@@ -45,16 +45,15 @@ function trim {
 }
 
 function execute_mysql() {
-    branch="${2:-${MYSQL_ENV}}"
+    branch="$(get_mysql_env "$1")"
     wakeup_website "${branch}"
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1"
 }
 
 function import_mysql() {
-    import_file="$1"
-    branch="${2:-${MYSQL_ENV}}"
+    branch="$(get_mysql_env "$1")"
     wakeup_website "${branch}"
-    mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" < $import_file
+    mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")"
 }
 
 function dump_mysql() {

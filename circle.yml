@@ -57,7 +57,7 @@ machine:
 
         MYSQL_ENV:              "{$CIRCLE_BRANCH}"
 
-        IMPORT_PACKAGE_FILE     "${MYSQL_ROOT}/import_package.sql"
+        IMPORT_PACKAGE_FILE:    "${MYSQL_ROOT}/import_package.sql"
 
         POST_TYPES: |
             page
