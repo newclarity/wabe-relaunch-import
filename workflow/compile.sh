@@ -18,7 +18,7 @@ if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
     announce "Using cached ${IMPORT_PACKAGE_FILE}"
     return
 else
-    announce "Created and then caching ${IMPORT_PACKAGE_FILE}"
+    announce "Creating and then caching ${IMPORT_PACKAGE_FILE}"
 fi
 
 #

@@ -45,7 +45,7 @@ function trim {
 }
 
 function execute_mysql() {
-    branch="$(get_mysql_env "$1")"
+    branch="$(get_mysql_env "$2")"
     wakeup_website "${branch}"
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1"
 }
