@@ -67,7 +67,11 @@ function set_mysql_env() {
 # https://superuser.com/a/544643/46038
 #
 function tar_gzip {
-    env GZIP=-9 tar cvzf "$1.tar.gz" "$1"
+    save_dir="$(pwd)"
+    cd "$(dirname "$1")"
+    filename="$(basename "$1")"
+    env GZIP=-9 tar cvzf "${filename}.tar.gz" "${filename}"
+    cd "${save_dir}"
 }
 
 # https://stackoverflow.com/a/12973694/102699
