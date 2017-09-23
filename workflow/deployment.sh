@@ -3,6 +3,7 @@
 declare=${SHARED_SCRIPTS:=}
 declare=${CIRCLE_BRANCH:=}
 declare=${REPO_ROOT:=}
+declare=${IMPORT_PACKAGE_FILE:=}
 
 source "${SHARED_SCRIPTS}"
 
@@ -19,7 +20,7 @@ if [ "master" != "${DEPLOY_BRANCH}" ]; then
 fi
 
 announce "Adding import tables to working database..."
-import_mysql "${DEPLOY_BRANCH}" < import_package.sql
+import_mysql "${DEPLOY_BRANCH}" < ${IMPORT_PACKAGE_FILE}
 
 #
 # Add some sanity checks here
