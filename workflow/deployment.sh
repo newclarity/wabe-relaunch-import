@@ -18,17 +18,14 @@ if [ "master" != "${DEPLOY_BRANCH}" ]; then
     execute_terminus env:clone-content wabe.live "${DEPLOY_BRANCH}" --files-only --no-interaction --yes
 fi
 
-#
-#
-#
 announce "Adding import tables to working database..."
 import_mysql "${DEPLOY_BRANCH}" < import_package.sql
 
 #
 # Add some sanity checks here
 #
-announce "Preparing import data to assure no conflicting IDs...";
-execute_terminus wp "wabe.${DEPLOY_BRANCH}" -- wabe-prepare-import
+#announce "Preparing import data to assure no conflicting IDs...";
+#execute_terminus wp "wabe.${DEPLOY_BRANCH}" -- wabe-prepare-import
 
 announce "Importing posts..."
 execute_mysql "INSERT INTO wp_posts (SELECT * FROM import_posts)"

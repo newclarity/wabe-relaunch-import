@@ -113,7 +113,7 @@ compile:
         - workflow/compile.sh
 
     post:
-        workflow/deployment.sh
+        - workflow/deployment.sh
 
 
 test:
