@@ -148,4 +148,11 @@ dump_mysql preview \
     import_term_relationships \
     > ${IMPORT_PACKAGE_FILE}
 
+#
+# Make it smaller
+#
+announce "...Compressing to ${IMPORT_PACKAGE_FILE}.tar.gz"
+tar_gzip "${IMPORT_PACKAGE_FILE}"
+
 announce "Import package ${IMPORT_PACKAGE_FILE} created"
+

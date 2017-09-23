@@ -39,6 +39,13 @@ onError
 
 MYSQL_ENV=""
 
+#
+# https://superuser.com/a/544643/46038
+#
+function tar_gzip {
+    env GZIP=-9 tar cvzf "$1.tar.gz" "$1"
+}
+
 # https://stackoverflow.com/a/12973694/102699
 function trim {
     echo "$1" | xargs
@@ -206,7 +213,6 @@ function quote_mysql_set() {
 #
 function set_mysql_env() {
     MYSQL_ENV="$1"
-    announce "Set default MySQL environment to ${MYSQL_ENV}"
     write_mysql_credentials "${MYSQL_ENV}"
 }
 
@@ -214,6 +220,7 @@ function set_mysql_env() {
 # Set the default MySQL environment to be same as current branch
 # Each branch should equate to an environment, at least on Pantheon
 #
+announce "Set default MySQL environment to ${CIRCLE_BRANCH}"
 set_mysql_env "${CIRCLE_BRANCH}"
 
 

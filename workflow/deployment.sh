@@ -9,6 +9,7 @@ source "${SHARED_SCRIPTS}"
 
 DEPLOY_BRANCH="${CIRCLE_BRANCH}"
 
+announce "Set default MySQL environment to ${DEPLOY_BRANCH}"
 set_mysql_env "${DEPLOY_BRANCH}"
 
 if [ "master" != "${DEPLOY_BRANCH}" ]; then
