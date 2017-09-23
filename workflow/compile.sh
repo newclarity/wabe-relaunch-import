@@ -54,14 +54,14 @@ execute_mysql "DROP TABLE IF EXISTS new_menu_taxonomy;
     CREATE TABLE new_menu_taxonomy LIKE wp_term_taxonomy;
     INSERT new_menu_taxonomy
     SELECT * FROM wp_term_taxonomy WHERE term_id IN (SELECT term_id FROM new_menus);
-    ALTER TABLE new_menu_taxonomy MODIFY COLUMN `term_taxonomy_id` bigint(20) UNSIGNED NOT NULL FIRST;"
+    ALTER TABLE new_menu_taxonomy MODIFY COLUMN term_taxonomy_id bigint(20) UNSIGNED NOT NULL FIRST;"
 
 announce "......Generating new_menu_items from wp_posts on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS new_menu_items;
     CREATE TABLE new_menu_items LIKE wp_posts;
     INSERT new_menu_items
     SELECT * FROM wp_posts WHERE ID IN (SELECT object_id FROM new_menu_relationships);
-    ALTER TABLE new_menu_items MODIFY COLUMN `ID` bigint(20) UNSIGNED NOT NULL FIRST;"
+    ALTER TABLE new_menu_items MODIFY COLUMN ID bigint(20) UNSIGNED NOT NULL FIRST;"
 
 announce "......Generating new_menu_items from wp_posts on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS new_menu_item_meta;
@@ -101,7 +101,7 @@ execute_mysql " CREATE TEMPORARY TABLE menu_item_object_id AS
 
 
 #
-# Add post types that are primarily sourced on `preview`
+# Add post types that are primarily sourced on 'preview'
 #
 
 post_types="$(quote_mysql_set "${POST_TYPES}")"
