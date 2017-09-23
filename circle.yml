@@ -49,11 +49,16 @@ machine:
         #
         #  This is from the "old" content from NPR
         #
-        STARTING_POST_ID:       375000
-        STARTING_META_ID:       4000000
-        STARTING_TERM_ID:       2000
+        STARTING_POST_ID:            375000
+        STARTING_META_ID:           4000000
+        STARTING_TERM_ID:              2000
 
-        ENDING_POST_ID:         407946
+        MENU_ID_OFFSET:                2500
+        MENU_ITEM_ID_OFFSET:         500000
+        MENU_ITEM_META_ID_OFFSET:   6000000
+
+
+        ENDING_POST_ID:              407946
         ENDING_POST_DATE:       "2015-10-31"
 
         MYSQL_ENV:              "{$CIRCLE_BRANCH}"
@@ -70,7 +75,6 @@ machine:
             wabe_homepage
             wabe_helptext
             wabe_featured_slide
-            nav-menu-item
 
         META_KEYS: |
             npr_author_xml
