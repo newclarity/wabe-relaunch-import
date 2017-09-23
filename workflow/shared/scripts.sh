@@ -70,7 +70,7 @@ function tar_gzip {
     save_dir="$(pwd)"
     cd "$(dirname "$1")"
     filename="$(basename "$1")"
-    env GZIP=-9 tar cvzf "${filename}.tar.gz" "${filename}"
+    env GZIP=-9 tar cvzf "${filename}.tar.gz" "${filename}" > /dev/null
     cd "${save_dir}"
 }
 

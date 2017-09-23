@@ -4,6 +4,7 @@ declare=${WORKFLOW_ROOT:=}
 declare=${SHARED_SCRIPTS:=}
 declare=${INCLUDES_ROOT:=}
 declare=${CIRCLE_BRANCH:=}
+declare=${CIRCLE_ARTIFACTS:=}
 
 #
 # Ensure shared scripts are executable
@@ -17,6 +18,8 @@ sudo chmod -R +x "${WORKFLOW_ROOT}/includes"
 # Load the shared scripts
 #
 source "${SHARED_SCRIPTS}"
+
+ARTIFACTS_FILE="${CIRCLE_ARTIFACTS}/dependencies.log"
 
 #
 # Install Pantheon's Terminus

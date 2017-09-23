@@ -5,8 +5,11 @@ declare=${CIRCLE_BRANCH:=}
 declare=${REPO_ROOT:=}
 declare=${IMPORT_PACKAGE_FILE:=}
 declare=${SNAPSHOT_FILE:=}
+declare=${CIRCLE_ARTIFACTS:=}
 
 source "${SHARED_SCRIPTS}"
+
+ARTIFACTS_FILE="${CIRCLE_ARTIFACTS}/deployments.log"
 
 DEPLOY_BRANCH="${CIRCLE_BRANCH}"
 

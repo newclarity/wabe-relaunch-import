@@ -11,8 +11,11 @@ declare=${MYSQL_ROOT:=}
 declare=${META_KEYS:=}
 declare=${TAXONOMIES:=}
 declare=${IMPORT_PACKAGE_FILE:=}
+declare=${CIRCLE_ARTIFACTS:=}
 
 source ${SHARED_SCRIPTS}
+
+ARTIFACTS_FILE="${CIRCLE_ARTIFACTS}/compile.log"
 
 if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
     announce "Using cached ${IMPORT_PACKAGE_FILE}"
