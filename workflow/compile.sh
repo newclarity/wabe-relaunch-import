@@ -46,7 +46,7 @@ announce "......Generating new_menus from wp_terms on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS new_menus;
     CREATE TABLE new_menus LIKE wp_terms;
     INSERT new_menus
-    SELECT * FROM wp_terms WHERE name LIKE '%(Relaunch);'
+    SELECT * FROM wp_terms WHERE name LIKE '%(Relaunch)';
     ALTER TABLE new_menus MODIFY COLUMN term_id bigint(20) UNSIGNED NOT NULL FIRST;"
 
 announce "......Generating new_menu_taxonomy from wp_term_taxonomy on 'preview'"
