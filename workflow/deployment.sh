@@ -107,11 +107,14 @@ else
                 SELECT CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) FROM wp_term_relationships
             )"
 
+    announce "...Importing posts into live tables..."
+    #execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
+
     announce "...Creating a Snapshot of database just assembled"
     dump_mysql "${DEPLOY_BRANCH}" > ${SNAPSHOT_FILE}
 
-    announce "...Importing posts into live tables..."
-    execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
+    announce "...Compressing to ${SNAPSHOT_FILE}.tar.gz"
+    tar_gzip "${SNAPSHOT_FILE}"
 
 fi
 
