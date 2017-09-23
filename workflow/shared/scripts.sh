@@ -7,6 +7,7 @@ declare=${CIRCLE_BRANCH:=}
 declare=${CIRCLE_ARTIFACTS:=}
 declare=${TERMINUS_ROOT:=}
 declare=${PANTHEON_SITE_NAME:=}
+declare=${PANTHEON_SITE_UUID:=}
 
 #
 # Set artifacts file for this script
@@ -38,6 +39,29 @@ echo . > $ARTIFACTS_FILE
 onError
 
 MYSQL_ENV=""
+#
+# Takes a space separated string and "quotes" it for MySQL "IN" clause, e.g.
+#
+#       foo bar baz
+#
+# becomes:
+#
+#       'foo','bar','baz'
+#
+#
+function quote_mysql_set() {
+    echo "'$(echo $1 | sed "s/ /','/g")'"
+}
+
+#
+# Sets the global MYSQL_ENV to a passed branch name, and
+# Creates a --defaults-extra-file in my.cnf format based
+# credentials provided by Pantheon's terminus command
+#
+function set_mysql_env() {
+    MYSQL_ENV="$1"
+    write_mysql_credentials "${MYSQL_ENV}"
+}
 
 #
 # https://superuser.com/a/544643/46038
@@ -192,35 +216,26 @@ function write_mysql_credentials() {
 
 }
 
-#
-# Takes a space separated string and "quotes" it for MySQL "IN" clause, e.g.
-#
-#       foo bar baz
-#
-# becomes:
-#
-#       'foo','bar','baz'
-#
-#
-function quote_mysql_set() {
-    echo "'$(echo $1 | sed "s/ /','/g")'"
+
+function rsync_upload() {
+    rsync_transfer "$1" "$(rsync_remote "$2")" "--temp-dir=~/tmp/"
+}
+
+function rsync_download() {
+    rsync_transfer "$(rsync_remote "$1")" "$2"
 }
 
 #
-# Sets the global MYSQL_ENV to a passed branch name, and
-# Creates a --defaults-extra-file in my.cnf format based
-# credentials provided by Pantheon's terminus command
+# https://pantheon.io/docs/rsync-and-sftp/
 #
-function set_mysql_env() {
-    MYSQL_ENV="$1"
-    write_mysql_credentials "${MYSQL_ENV}"
+function rsync_transfer() {
+    rsync -rlvz --size-only --ipv4 --progress -e 'ssh -p 2222' "$1" $3 "$2"
 }
 
 #
-# Set the default MySQL environment to be same as current branch
-# Each branch should equate to an environment, at least on Pantheon
+# https://pantheon.io/docs/rsync-and-sftp/
 #
-announce "Set default MySQL environment to ${CIRCLE_BRANCH}"
-set_mysql_env "${CIRCLE_BRANCH}"
-
-
+function rsync_remote() {
+    env="$(get_mysql_env)"
+    echo "${env}.${PANTHEON_SITE_UUID}@appserver.${env}.${PANTHEON_SITE_UUID}.drush.in:files/$1"
+}

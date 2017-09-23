@@ -14,6 +14,7 @@ machine:
         # Define the Pantheon Site Name
         #
         PANTHEON_SITE_NAME:  "wabe"
+        PANTHEON_SITE_UUID:  "d5981687-a2b6-4a2c-9456-ae933c90b097"
         PANTHEON_MACHINE_TOKEN: "db4NKbw3H5XBxLYc5OGB0QOlLimfEDcGpOOGKllgWIyc8"
 
         #
@@ -58,6 +59,7 @@ machine:
         MYSQL_ENV:              "{$CIRCLE_BRANCH}"
 
         IMPORT_PACKAGE_FILE:    "${MYSQL_ROOT}/import_package.sql"
+        SNAPSHOT_FILE:          "${MYSQL_ROOT}/snapshot.sql"
 
         POST_TYPES: |
             page
@@ -124,8 +126,12 @@ test:
 deployment:
 
   deploy:
-    branch: /.+/
+    branch: prelaunch
     commands:
     - workflow/deployment.sh
 
+  deploy:
+    branch: import
+    commands:
+    - workflow/deployment.sh
 
