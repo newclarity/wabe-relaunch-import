@@ -108,28 +108,18 @@ post_types="$(quote_mysql_set "${POST_TYPES}")"
 announce "...Generating new_posts from wp_posts on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS new_posts;
     CREATE TABLE new_posts LIKE wp_posts;
-    INSERT INTO new_posts (
+    INSERT INTO new_posts
     SELECT * FROM new_menu_items
     UNION
-    SELECT
-        *
-    FROM
-        wp_posts
-    WHERE 1=1
+    SELECT * FROM wp_posts WHERE 1=1
         AND post_status IN ('publish','private','draft','revision','inherit')
-        AND post_type IN (${post_types})
-    );"
+        AND post_type IN (${post_types});"
 
 announce "...Inserting attachments in new_posts from wp_posts on 'preview'"
-execute_mysql "INSERT INTO new_posts (
-    SELECT
-        *
-    FROM
-        wp_posts
-    WHERE 1=1
+execute_mysql "INSERT INTO new_posts
+    SELECT * FROM wp_posts WHERE 1=1
         AND post_type = 'attachment'
-        AND post_parent IN ( SELECT ID FROM new_posts )
-    )"
+        AND post_parent IN ( SELECT ID FROM new_posts )"
 
 
 announce "...Generating new_postmeta from wp_postmeta on 'preview'"
