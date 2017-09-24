@@ -44,15 +44,14 @@ source "${INCLUDES_ROOT}/terminus.sh"
 announce "Set default MySQL environment to ${CIRCLE_BRANCH}"
 set_mysql_env "${CIRCLE_BRANCH}"
 
+if [ "yes" = "${REGEN_IMPORT_PACKAGE}" ]; then
+    rm -f "${IMPORT_PACKAGE_FILE}"
+fi
 
 if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
     announce "Is ${IMPORT_PACKAGE_FILE} found? Yes!"
 else
     announce "Is ${IMPORT_PACKAGE_FILE} found? No. :-("
-fi
-
-if [ "yes" = "${REGEN_IMPORT_PACKAGE}" ]; then
-    rm -f "${IMPORT_PACKAGE_FILE}"
 fi
 
 if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
