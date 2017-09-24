@@ -8,6 +8,8 @@ declare=${SNAPSHOT_FILE:=}
 declare=${CIRCLE_ARTIFACTS:=}
 declare=${GENERATE_SNAPSHOT:=}
 declare=${GENERATE_SNAPSHOT_GZIP:=}
+declare=${CLONE_LIVE_DATABASE:=}
+declare=${CLONE_LIVE_FILES:=}
 
 source "${SHARED_SCRIPTS}"
 
@@ -31,11 +33,15 @@ if [ -f "${SNAPSHOT_FILE}" ]; then
 else
 
     if [ "master" != "${DEPLOY_BRANCH}" ]; then
-        announce "...Cloning database from production to ${DEPLOY_BRANCH}."
-        execute_terminus env:clone-content wabe.live "${DEPLOY_BRANCH}" --db-only --no-interaction --yes
+        if [ "yes" == "${CLONE_LIVE_DATABASE}" ]; then
+            announce "...Cloning database from production to ${DEPLOY_BRANCH}."
+            execute_terminus env:clone-content wabe.live "${DEPLOY_BRANCH}" --db-only --no-interaction --yes
+        fi
 
-        announce "...Cloning upload files from production to ${DEPLOY_BRANCH}."
-        execute_terminus env:clone-content wabe.live "${DEPLOY_BRANCH}" --files-only --no-interaction --yes
+        if [ "yes" == "${CLONE_LIVE_FILES}" ]; then
+            announce "...Cloning upload files from production to ${DEPLOY_BRANCH}."
+            execute_terminus env:clone-content wabe.live "${DEPLOY_BRANCH}" --files-only --no-interaction --yes
+        fi
     fi
 
     #
@@ -83,7 +89,7 @@ else
     execute_mysql "DELETE FROM wp_postmeta WHERE meta_key='_edit_lock' OR meta_key='_edit_last'"
 
     announce "...Delete no longer used post meta fields"
-    execute_mysql "DELETE FROM wp_postmeta WHERE
+    execute_mysql "DELETE FROM wp_postmeta WHERE 1=0
         OR meta_key LIKE 'gaussholder%'
         OR meta_key LIKE '_tailor_%'
         OR meta_key LIKE '_wabe_author[%][person_id]'
@@ -160,11 +166,5 @@ else
 fi
 
 announce "Data conversion scripts complete."
-
-# Set the home page setting
-
-# Set the theme settings
-
-# Set the active theme
 
 
