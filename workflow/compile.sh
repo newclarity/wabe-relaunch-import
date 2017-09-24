@@ -113,19 +113,19 @@ else
 
     announce "...Setting menu locations for wabe-theme in wp_options"
     execute_mysql "
-        UPDATE wp_options o INNER JOIN new_menus m ON name = 'Primary Navigation (Relaunch)'
+        UPDATE wp_options o INNER JOIN wp_terms t ON name = 'Primary Navigation (Relaunch)'
         SET o.option_value = REPLACE( o.option_value,'primary_navigation\";i:2;' COLLATE utf8mb4_unicode_ci,
 	        CONCAT(
 	            'primary_navigation\";i:' COLLATE utf8mb4_unicode_ci,
-	            CAST( m.term_id AS CHAR),
+	            CAST( t.term_id AS CHAR),
 	            ';' COLLATE utf8mb4_unicode_ci
 	        )
         ) WHERE o.option_name = 'theme_mods_wabe-theme';
-        UPDATE wp_options o INNER JOIN new_menus m ON name ='Footer Navigation (Relaunch)'
+        UPDATE wp_options o INNER JOIN wp_terms t ON name ='Footer Navigation (Relaunch)'
         SET option_value = REPLACE( o.option_value,'footer_navigation\";i:3;' COLLATE utf8mb4_unicode_ci,
 	        CONCAT(
 	            'footer_navigation\";i:' COLLATE utf8mb4_unicode_ci,
-	            CAST( m.term_id AS CHAR),
+	            CAST( t.term_id AS CHAR),
 	            ';' COLLATE utf8mb4_unicode_ci
 	        )
         ) WHERE o.option_name = 'theme_mods_wabe-theme"
