@@ -25,7 +25,7 @@ source ${SHARED_SCRIPTS}
 ARTIFACTS_FILE="${CIRCLE_ARTIFACTS}/compile.log"
 
 if [ "yes" = "${REGEN_IMPORT_PACKAGE}" ]; then
-    rm "${IMPORT_PACKAGE_FILE}"
+    rm -f "${IMPORT_PACKAGE_FILE}"
 fi
 
 if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
