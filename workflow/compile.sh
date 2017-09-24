@@ -165,13 +165,15 @@ execute_mysql "DROP TABLE IF EXISTS new_term_taxonomy;
 
 announce "...Generating new_term_relationships table from wp_term_relationships on 'preview'"
 menu_insert_sql="$(generate_menu_insert_sql "new_menu_relationships")"
-execute_mysql "DROP TABLE IF EXISTS new_term_relationships;
+#execute_mysql
+sql="DROP TABLE IF EXISTS new_term_relationships;
     CREATE TABLE new_term_relationships LIKE wp_term_relationships;
     INSERT INTO new_term_relationships ${menu_insert_sql}
     SELECT * FROM wp_term_relationships WHERE 1=0
         OR term_taxonomy_id>=${STARTING_TERM_ID}
         OR object_id IN (SELECT ID FROM new_posts)
         OR term_taxonomy_id IN (SELECT term_taxonomy_id FROM new_term_taxonomy);"
+exit 1
 
 execute_mysql "DROP TABLE IF EXISTS new_options;
     CREATE TABLE new_options LIKE wp_options;
