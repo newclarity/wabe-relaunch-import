@@ -117,19 +117,19 @@ if [[ "yes" = "${REGEN_MENU_IMPORTS}" ]]; then
         UPDATE new_menu_taxonomy SET term_id=term_id+${MENU_ID_OFFSET}, term_taxonomy_id=term_taxonomy_id+${MENU_ID_OFFSET};
         UPDATE new_menu_relationships SET term_taxonomy_id=term_taxonomy_id+${MENU_ID_OFFSET};"
 
-    announce "......Offset menu parent IDs in new_menu_item_meta on 'preview'"
-    execute_mysql " CREATE TEMPORARY TABLE menu_item_menu_item_parent AS
-        SELECT meta_id, CAST(meta_value AS signed) + ${MENU_ITEM_ID_OFFSET} AS post_id FROM new_menu_item_meta
-            WHERE CAST(meta_value AS signed) > 0 AND meta_key='_menu_item_menu_item_parent';
-        UPDATE new_menu_item_meta nmim INNER JOIN menu_item_menu_item_parent mimip ON nmim.meta_id=mimip.meta_id
-            SET nmim.meta_value = mimip.post_id;"
-
-    announce "......Offset menu item reference post IDs in new_menu_item_meta on 'preview'"
-    execute_mysql " CREATE TEMPORARY TABLE menu_item_object_id AS
-        SELECT meta_id, CAST(meta_value AS signed) + ${MENU_ITEM_ID_OFFSET} AS post_id FROM new_menu_item_meta
-            WHERE CAST(meta_value AS signed) > 0 AND meta_key='_menu_item_object_id';
-        UPDATE new_menu_item_meta nmim INNER JOIN menu_item_object_id mioi ON nmim.meta_id=mioi.meta_id
-            SET nmim.meta_value = mioi.post_id;"
+#    announce "......Offset menu parent IDs in new_menu_item_meta on 'preview'"
+#    execute_mysql " CREATE TEMPORARY TABLE menu_item_menu_item_parent AS
+#        SELECT meta_id, CAST(meta_value AS signed) + ${MENU_ITEM_ID_OFFSET} AS post_id FROM new_menu_item_meta
+#            WHERE CAST(meta_value AS signed) > 0 AND meta_key='_menu_item_menu_item_parent';
+#        UPDATE new_menu_item_meta nmim INNER JOIN menu_item_menu_item_parent mimip ON nmim.meta_id=mimip.meta_id
+#            SET nmim.meta_value = mimip.post_id;"
+#
+#    announce "......Offset menu item reference post IDs in new_menu_item_meta on 'preview'"
+#    execute_mysql " CREATE TEMPORARY TABLE menu_item_object_id AS
+#        SELECT meta_id, CAST(meta_value AS signed) + ${MENU_ITEM_ID_OFFSET} AS post_id FROM new_menu_item_meta
+#            WHERE CAST(meta_value AS signed) > 0 AND meta_key='_menu_item_object_id';
+#        UPDATE new_menu_item_meta nmim INNER JOIN menu_item_object_id mioi ON nmim.meta_id=mioi.meta_id
+#            SET nmim.meta_value = mioi.post_id;"
 
 fi
 
