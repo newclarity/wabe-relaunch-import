@@ -144,11 +144,9 @@ execute_mysql "DROP TABLE IF EXISTS new_posts;
     INSERT INTO new_posts
     SELECT * FROM new_menu_items
     UNION
-    SELECT * FROM wp_posts WHERE 1=1
-        AND post_status IN ('publish','private','draft','revision','inherit')
-        AND post_type IN (${post_types});"
-
-exit 1;
+    SELECT * FROM wp_posts WHERE post_status='publish' AND post_type IN (${post_types});
+    UNION
+    SELECT * FROM wp_posts WHERE post_type='page' AND post_status IN ('publish','private','draft','revision','inherit');"
 
 announce "...Inserting attachments in new_posts from wp_posts on 'preview'"
 execute_mysql "INSERT INTO new_posts

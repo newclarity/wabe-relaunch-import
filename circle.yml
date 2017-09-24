@@ -78,7 +78,6 @@ machine:
         SNAPSHOT_FILE:          "${MYSQL_ROOT}/snapshot.sql"
 
         POST_TYPES: |
-            page
             wabe_person
             wabe_show
             wabe_guide
