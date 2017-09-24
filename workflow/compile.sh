@@ -60,7 +60,7 @@ else
         DROP TABLE wp_nextend2_smartslider3_sliders;
         DROP TABLE wp_nextend2_smartslider3_slides"
 
-    announce "...Importing new tables and records into working database..."
+    announce "...Importing new tables and records into working database"
     import_mysql "${DEPLOY_BRANCH}" < ${IMPORT_PACKAGE_FILE}
 
     #announce "...Show the tables we have now"
@@ -69,7 +69,7 @@ else
     #
     # Add some sanity checks here
     #
-    #announce "...Preparing import data to assure no conflicting IDs...";
+    #announce "...Preparing import data to assure no conflicting IDs";
     #execute_terminus wp "wabe.${DEPLOY_BRANCH}" -- wabe-prepare-import
 
     announce "...Importing new_posts to wp_posts"
@@ -106,8 +106,6 @@ else
 
     announce "...Importing new_options into wp_options, deleting selected wp_options"
     execute_mysql "DELETE FROM wp_options WHERE 1=0
-            OR option_name LIKE '_transient_%'
-            OR option_name LIKE '_site_transient_%'
             OR option_name IN (SELECT option_name FROM new_options);
         INSERT INTO wp_options (option_name,option_value,autoload)
         SELECT option_name,option_value,autoload FROM new_options;
@@ -156,7 +154,7 @@ else
                 SELECT CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) FROM wp_term_relationships
             )"
 
-    announce "...Importing posts into live tables..."
+    announce "...Importing posts into live tables"
     #execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
 
     if [ "yes" = "${GENERATE_SNAPSHOT}" ] ; then
