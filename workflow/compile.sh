@@ -62,6 +62,11 @@ else
         DROP TABLE wp_nextend2_smartslider3_sliders;
         DROP TABLE wp_nextend2_smartslider3_slides"
 
+    announce "...Delete any old guides found in wp_posts"
+    execute_mysql "
+        DELETE FROM wp_postmeta WHERE post_id IN (SELECT ID FROM wp_posts WHERE post_type='wabe_guide');
+        DELETE FROM wp_posts WHERE post_type='wabe_guide';"
+
     announce "...Importing new tables and records into working database"
     import_mysql "${DEPLOY_BRANCH}" < ${IMPORT_PACKAGE_FILE}
 

@@ -148,6 +148,8 @@ execute_mysql "DROP TABLE IF EXISTS new_posts;
         AND post_status IN ('publish','private','draft','revision','inherit')
         AND post_type IN (${post_types});"
 
+exit 1;
+
 announce "...Inserting attachments in new_posts from wp_posts on 'preview'"
 execute_mysql "INSERT INTO new_posts
     SELECT * FROM wp_posts WHERE 1=1
