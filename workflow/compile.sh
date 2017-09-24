@@ -113,16 +113,22 @@ else
 
     announce "...Setting menu locations for wabe-theme in wp_options"
     execute_mysql "
-        SELECT @primary_nav_id := term_id FROM wp_terms WHERE name='Primary Navigation (Relaunch)';
-        SELECT @footer_nav_id := term_id FROM wp_terms WHERE name='Footer Navigation (Relaunch)';
-        UPDATE wp_options
-        SET option_value = REPLACE( option_value,'primary_navigation\";i:2;',
-                CONCAT('primary_navigation\";i:',CAST( @primary_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
-        ) WHERE option_name = 'theme_mods_wabe-theme';
-        UPDATE wp_options
-        SET option_value = REPLACE( option_value,'footer_navigation\";i:3;',
-	        CONCAT('footer_navigation\";i:',CAST( @footer_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
-        ) WHERE option_name = 'theme_mods_wabe-theme';"
+        UPDATE wp_options o INNER JOIN new_menus m ON name = 'Primary Navigation (Relaunch)'
+        SET o.option_value = REPLACE( o.option_value,'primary_navigation\";i:2;' COLLATE utf8mb4_unicode_ci,
+	        CONCAT(
+	            'primary_navigation\";i:' COLLATE utf8mb4_unicode_ci,
+	            CAST( m.term_id AS CHAR),
+	            ';' COLLATE utf8mb4_unicode_ci
+	        )
+        ) WHERE o.option_name = 'theme_mods_wabe-theme';
+        UPDATE wp_options o INNER JOIN new_menus m ON name ='Footer Navigation (Relaunch)'
+        SET option_value = REPLACE( o.option_value,'footer_navigation\";i:3;' COLLATE utf8mb4_unicode_ci,
+	        CONCAT(
+	            'footer_navigation\";i:' COLLATE utf8mb4_unicode_ci,
+	            CAST( m.term_id AS CHAR),
+	            ';' COLLATE utf8mb4_unicode_ci
+	        )
+        ) WHERE o.option_name = 'theme_mods_wabe-theme"
 
     announce "...Importing new_terms into wp_terms"
     execute_mysql "INSERT INTO wp_terms
