@@ -51,7 +51,7 @@ fi
 
 set_mysql_env "preview"
 
-if [[ "yes" = "${REGEN_MENU_IMPORTS}" || ! -f "${IMPORT_PACKAGE_FILE}" ]]; then
+if [[ "yes" = "${REGEN_MENU_IMPORTS}" ]]; then
 
     announce "...Generating new menus tables from 'preview'"
 
