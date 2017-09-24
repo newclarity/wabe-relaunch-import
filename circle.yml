@@ -10,6 +10,10 @@ machine:
 
     environment:
 
+        REGEN_IMPORT_PACKAGE:           "yes"
+        REGEN_MENU_IMPORTS:             "yes"
+        GENERATE_IMPORT_PACKAGE_GZIP:   "no"
+
         #
         # Define the Pantheon Site Name
         #
