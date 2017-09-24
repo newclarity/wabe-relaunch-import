@@ -115,9 +115,7 @@ if [[ "yes" = "${REGEN_MENU_IMPORTS}" ]]; then
     execute_mysql "
         UPDATE new_menus SET term_id=term_id+${MENU_ID_OFFSET};
         UPDATE new_menu_taxonomy SET term_id=term_id+${MENU_ID_OFFSET}, term_taxonomy_id=term_taxonomy_id+${MENU_ID_OFFSET};
-        UPDATE new_menu_relationships SET term_taxonomy_id=term_taxonomy_id+${MENU_ID_OFFSET};
-        UPDATE new_menu_items SET ID=ID+${MENU_ITEM_ID_OFFSET}, post_parent=post_parent+${MENU_ITEM_ID_OFFSET};
-        UPDATE new_menu_item_meta SET meta_id=meta_id+${MENU_ITEM_META_ID_OFFSET}, post_id=post_id+${MENU_ITEM_ID_OFFSET};"
+        UPDATE new_menu_relationships SET term_taxonomy_id=term_taxonomy_id+${MENU_ID_OFFSET};"
 
     announce "......Offset menu parent IDs in new_menu_item_meta on 'preview'"
     execute_mysql " CREATE TEMPORARY TABLE menu_item_menu_item_parent AS

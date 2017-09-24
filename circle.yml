@@ -68,9 +68,6 @@ machine:
         STARTING_TERM_ID:              2000
 
         MENU_ID_OFFSET:                2500
-        MENU_ITEM_ID_OFFSET:         500000
-        MENU_ITEM_META_ID_OFFSET:   6000000
-
 
         ENDING_POST_ID:              407946
         ENDING_POST_DATE:       "2015-10-31"
