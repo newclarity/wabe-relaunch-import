@@ -90,6 +90,13 @@ if [[ "yes" = "${REGEN_MENU_IMPORTS}" ]]; then
         SELECT * FROM wp_term_taxonomy WHERE term_id IN (SELECT term_id FROM new_menus);
         ALTER TABLE new_menu_taxonomy MODIFY COLUMN term_taxonomy_id bigint(20) UNSIGNED NOT NULL FIRST;"
 
+    announce "......Generating new_menu_relationships from wp_term_relationships on 'preview'"
+    execute_mysql "DROP TABLE IF EXISTS new_menu_relationships;
+        CREATE TABLE new_menu_relationships LIKE wp_term_relationships;
+        INSERT new_menu_relationships
+        SELECT * FROM wp_term_relationships WHERE term_taxonomy_id
+            IN (SELECT term_taxonomy_id FROM new_menu_taxonomy);"
+
     announce "......Generating new_menu_items from wp_posts on 'preview'"
     execute_mysql "DROP TABLE IF EXISTS new_menu_items;
         CREATE TABLE new_menu_items LIKE wp_posts;
@@ -103,13 +110,6 @@ if [[ "yes" = "${REGEN_MENU_IMPORTS}" ]]; then
         INSERT new_menu_item_meta
         SELECT * FROM wp_postmeta WHERE post_id IN (SELECT ID FROM new_menu_items);
         ALTER TABLE new_menu_item_meta MODIFY COLUMN meta_id bigint(20) UNSIGNED NOT NULL FIRST;"
-
-    announce "......Generating new_menu_relationships from wp_term_relationships on 'preview'"
-    execute_mysql "DROP TABLE IF EXISTS new_menu_relationships;
-        CREATE TABLE new_menu_relationships LIKE wp_term_relationships;
-        INSERT new_menu_relationships
-        SELECT * FROM wp_term_relationships WHERE term_taxonomy_id
-            IN (SELECT term_taxonomy_id FROM new_menu_taxonomy);"
 
     announce "......Add ID offsets for menu tables"
     execute_mysql "
