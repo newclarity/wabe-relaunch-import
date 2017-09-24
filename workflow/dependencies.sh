@@ -57,7 +57,7 @@ fi
 
 if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
     announce "Using cached ${IMPORT_PACKAGE_FILE}"
-    return
+    exit
 else
     announce "Creating and then caching ${IMPORT_PACKAGE_FILE}"
 fi
