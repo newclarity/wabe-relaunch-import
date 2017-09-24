@@ -82,10 +82,7 @@ function trim {
 function execute_mysql() {
     branch="$(get_mysql_env "$2")"
     wakeup_website "${branch}"
-    echo ""
-    echo "-----"
-    echo "$1"
-    echo ""
+    echo "$1" >> $ARTIFACTS_FILE
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1"
 }
 
