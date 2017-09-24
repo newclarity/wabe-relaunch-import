@@ -102,6 +102,19 @@ else
     execute_mysql "INSERT INTO wp_options (option_name,option_value,autoload)
         SELECT option_name,option_value,autoload FROM new_options;"
 
+    announce "...Setting menu locations for wabe-theme in wp_options"
+    execute_mysql "
+        SELECT @primary_nav_id := term_id FROM wp_terms WHERE name='Primary Navigation (Relaunch)';
+        SELECT @footer_nav_id := term_id FROM wp_terms WHERE name='Footer Navigation (Relaunch)';
+        UPDATE wp_options
+        SET option_value = REPLACE( option_value,'primary_navigation";i:2;',
+	        CONCAT('primary_navigation";i:',CAST( @primary_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
+        ) WHERE option_name = 'theme_mods_wabe-theme';
+        UPDATE wp_options
+        SET option_value = REPLACE( option_value,'footer_navigation";i:3;',
+	        CONCAT('footer_navigation";i:',CAST( @primary_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
+        ) WHERE option_name = 'theme_mods_wabe-theme';"
+
     announce "...Importing new_terms into wp_terms"
     execute_mysql "INSERT INTO wp_terms
         SELECT * FROM new_terms WHERE term_id NOT IN (SELECT term_id FROM wp_terms);"
@@ -134,7 +147,6 @@ else
 
     announce "...Importing posts into live tables..."
     #execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
-
 
     if [ "yes" = "${GENERATE_SNAPSHOT}" ] ; then
         announce "...Creating a Snapshot of database just assembled"
