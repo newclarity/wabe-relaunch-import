@@ -108,7 +108,7 @@ if [ "yes" = "${REGEN_MENU_IMPORTS}" ]; then
 
 fi
 
-function regen_menu_sql() {
+function generate_menu_insert_sql() {
     if [ "yes" = "${REGEN_MENU_IMPORTS}" ]; then 
         echo "SELECT * FROM $1 UNION"
     fi 
@@ -120,10 +120,10 @@ function regen_menu_sql() {
 
 announce "...Generating new_posts from wp_posts on 'preview'"
 post_types="$(quote_mysql_set "${POST_TYPES}")"
-regen_sql="$(regen_menu_sql "new_menu_items")"
+menu_insert_sql="$(generate_menu_insert_sql "new_menu_items")"
 execute_mysql "DROP TABLE IF EXISTS new_posts;
     CREATE TABLE new_posts LIKE wp_posts;
-    INSERT INTO new_posts ${regen_sql}
+    INSERT INTO new_posts ${menu_insert_sql}
     SELECT * FROM wp_posts WHERE 1=1
         AND post_status IN ('publish','private','draft','revision','inherit')
         AND post_type IN (${post_types});"
@@ -136,40 +136,64 @@ execute_mysql "INSERT INTO new_posts
 
 announce "...Generating new_postmeta from wp_postmeta on 'preview'"
 meta_keys="$(quote_mysql_set "${META_KEYS}")"
-regen_sql="$(regen_menu_sql "new_menu_item_meta")"
+menu_insert_sql="$(generate_menu_insert_sql "new_menu_item_meta")"
 execute_mysql "DROP TABLE IF EXISTS new_postmeta;
     CREATE TABLE new_postmeta LIKE wp_postmeta;
-    INSERT INTO new_postmeta ${regen_sql}
+    INSERT INTO new_postmeta ${menu_insert_sql}
     SELECT * FROM wp_postmeta WHERE post_id IN (SELECT ID FROM new_posts) OR meta_key IN ( ${meta_keys} );"
 
 announce "...Generating new_terms from wp_terms on 'preview'"
 taxonomies="$(quote_mysql_set "${TAXONOMIES}")"
-regen_sql="$(regen_menu_sql "new_menus")"
+menu_insert_sql="$(generate_menu_insert_sql "new_menus")"
 execute_mysql "DROP TABLE IF EXISTS new_terms;
     CREATE TABLE new_terms LIKE wp_terms;
-    INSERT INTO new_terms ${regen_sql}
-    SELECT * FROM wp_terms WHERE term_id >= ${STARTING_TERM_ID} OR term_id IN (
+    INSERT INTO new_terms ${menu_insert_sql}
+    SELECT * FROM wp_terms WHERE 1=0
+        OR term_id >= ${STARTING_TERM_ID}
+        OR term_id IN (
         SELECT term_id FROM wp_term_taxonomy WHERE taxonomy IN (${taxonomies})
     );"
 
 announce "...Generating new_term_taxonomy from wp_term_taxonomy on 'preview'"
-regen_sql="$(regen_menu_sql "new_menu_taxonomy")"
+menu_insert_sql="$(generate_menu_insert_sql "new_menu_taxonomy")"
 execute_mysql "DROP TABLE IF EXISTS new_term_taxonomy;
     CREATE TABLE new_term_taxonomy LIKE wp_term_taxonomy;
-    INSERT INTO new_term_taxonomy ${regen_sql}
+    INSERT INTO new_term_taxonomy ${menu_insert_sql}
     SELECT * FROM wp_term_taxonomy WHERE 1=0
         OR term_taxonomy_id>=${STARTING_TERM_ID}
         OR term_id IN (SELECT term_id FROM new_terms);"
 
 announce "...Generating new_term_relationships table from wp_term_relationships on 'preview'"
-regen_sql="$(regen_menu_sql "new_menu_relationships")"
+menu_insert_sql="$(generate_menu_insert_sql "new_menu_relationships")"
 execute_mysql "DROP TABLE IF EXISTS new_term_relationships;
     CREATE TABLE new_term_relationships LIKE wp_term_relationships;
-    INSERT INTO new_term_relationships ${regen_sql}
-    SELECT * FROM wp_term_relationships WHERE term_taxonomy_id>=${STARTING_TERM_ID}
+    INSERT INTO new_term_relationships ${menu_insert_sql}
+    SELECT * FROM wp_term_relationships WHERE 1=0
+        OR term_taxonomy_id>=${STARTING_TERM_ID}
         OR object_id IN (SELECT ID FROM new_posts)
         OR term_taxonomy_id IN (SELECT term_taxonomy_id FROM new_term_taxonomy);"
 
+execute_mysql "DROP TABLE IF EXISTS new_options;
+    CREATE TABLE new_options LIKE wp_options;
+    INSERT INTO new_options (option_name,option_value,autoload)
+        VALUES ('rewrite_rules',NULL,'yes');
+    INSERT INTO new_options
+    SELECT * FROM wp_options WHERE option_name IN (
+        'wabe_settings',
+        'permalink_structure',
+        'stylesheet',
+        'show_on_front',
+        'template',
+        'thumbnail_size_w',
+        'thumbnail_size_h',
+        'medium_size_w',
+        'medium_size_h',
+        'large_size_w',
+        'large_size_h',
+        'page_for_posts',
+        'page_on_front',
+        'current_theme',
+    );"
 
 # Add Home page configs? OR is this referring to setting the WP "Reading Settings First Page Displays" option?
 
@@ -182,6 +206,7 @@ dump_mysql preview \
     old_terms \
     old_term_taxonomy \
     old_term_relationships \
+    new_options \
     new_posts \
     new_postmeta \
     new_terms \

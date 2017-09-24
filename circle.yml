@@ -10,9 +10,14 @@ machine:
 
     environment:
 
+        #
+        # Switches to control what happens during rebuild
+        #
         REGEN_IMPORT_PACKAGE:           "yes"
         REGEN_MENU_IMPORTS:             "yes"
         GENERATE_IMPORT_PACKAGE_GZIP:   "no"
+        GENERATE_SNAPSHOT:              "no"
+        GENERATE_SNAPSHOT_GZIP:         "no"
 
         #
         # Define the Pantheon Site Name

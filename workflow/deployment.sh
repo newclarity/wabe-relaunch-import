@@ -6,6 +6,8 @@ declare=${REPO_ROOT:=}
 declare=${IMPORT_PACKAGE_FILE:=}
 declare=${SNAPSHOT_FILE:=}
 declare=${CIRCLE_ARTIFACTS:=}
+declare=${GENERATE_SNAPSHOT:=}
+declare=${GENERATE_SNAPSHOT_GZIP:=}
 
 source "${SHARED_SCRIPTS}"
 
@@ -80,30 +82,50 @@ else
     announce "...Removing _edit_lock and _edit_last from post meta"
     execute_mysql "DELETE FROM wp_postmeta WHERE meta_key='_edit_lock' OR meta_key='_edit_last'"
 
-    announce "...Importing new_terms to wp_terms"
+    announce "...Delete no longer used post meta fields"
+    execute_mysql "DELETE FROM wp_postmeta WHERE
+        OR meta_key LIKE 'gaussholder%'
+        OR meta_key LIKE '_tailor_%'
+        OR meta_key LIKE '_wabe_author[%][person_id]'
+        OR meta_key = '_npr_audio'
+        OR meta_key = '_wabe_audio_refs'
+        OR meta_key = '_wabe_mosaic[after_election_mosaic]'
+        OR meta_key = '_wabe_mosaic[election_mosaic]'"
+
+    announce "...Delete transients and new_options from wp_options"
+    execute_mysql "DELETE FROM wp_options WHERE 1=0
+            OR option_name LIKE '_transient_%'
+            OR option_name LIKE '_site_transient_%
+            OR option_name IN (SELECT option_name FROM new_options);'"
+
+    announce "...Importing new_options into wp_options"
+    execute_mysql "INSERT INTO wp_options (option_name,option_value,autoload)
+        SELECT option_name,option_value,autoload FROM new_options;"
+
+    announce "...Importing new_terms into wp_terms"
     execute_mysql "INSERT INTO wp_terms
         SELECT * FROM new_terms WHERE term_id NOT IN (SELECT term_id FROM wp_terms);"
 
-    announce "...Importing old_terms to wp_terms"
+    announce "...Importing old_terms into wp_terms"
     execute_mysql "INSERT INTO wp_terms
         SELECT * FROM old_terms WHERE term_id NOT IN (SELECT term_id FROM wp_terms);"
 
-    announce "...Importing new_term_taxonomy to wp_term_taxonomy"
+    announce "...Importing new_term_taxonomy into wp_term_taxonomy"
     execute_mysql "INSERT INTO wp_term_taxonomy
         SELECT * FROM new_term_taxonomy WHERE term_taxonomy_id NOT IN (SELECT term_taxonomy_id FROM wp_term_taxonomy);"
 
-    announce "...Importing old_term_taxonomy to wp_term_taxonomy"
+    announce "...Importing old_term_taxonomy into wp_term_taxonomy"
     execute_mysql "INSERT INTO wp_term_taxonomy
         SELECT * FROM old_term_taxonomy WHERE term_taxonomy_id NOT IN (SELECT term_taxonomy_id FROM wp_term_taxonomy);"
 
-    announce "...Importing new_term_relationships to wp_term_relationships"
+    announce "...Importing new_term_relationships into wp_term_relationships"
     execute_mysql "INSERT INTO wp_term_relationships
         SELECT * FROM new_term_relationships
             WHERE CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) NOT IN (
                 SELECT CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) FROM wp_term_relationships
             )"
 
-    announce "...Importing old_term_relationships to wp_term_relationships"
+    announce "...Importing old_term_relationships into wp_term_relationships"
     execute_mysql "INSERT INTO wp_term_relationships
         SELECT * FROM old_term_relationships
             WHERE CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) NOT IN (
@@ -113,12 +135,16 @@ else
     announce "...Importing posts into live tables..."
     #execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
 
-    announce "...Creating a Snapshot of database just assembled"
-    dump_mysql "${DEPLOY_BRANCH}" > ${SNAPSHOT_FILE}
 
-    announce "...Compressing to ${SNAPSHOT_FILE}.tar.gz"
-    tar_gzip "${SNAPSHOT_FILE}"
+    if [ "yes" = "${GENERATE_SNAPSHOT}" ] ; then
+        announce "...Creating a Snapshot of database just assembled"
+        dump_mysql "${DEPLOY_BRANCH}" > ${SNAPSHOT_FILE}
 
+        if [ "yes" = "${GENERATE_SNAPSHOT_GZIP}" ] ; then
+            announce "...Compressing to ${SNAPSHOT_FILE}.tar.gz"
+            tar_gzip "${SNAPSHOT_FILE}"
+        fi
+    fi
 fi
 
 announce "Data conversion scripts complete."
@@ -128,4 +154,5 @@ announce "Data conversion scripts complete."
 # Set the theme settings
 
 # Set the active theme
+
 
