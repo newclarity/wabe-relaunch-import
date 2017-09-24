@@ -176,12 +176,9 @@ execute_mysql "DROP TABLE IF EXISTS new_term_relationships;
 # Export the package
 announce "...Creating ${IMPORT_PACKAGE_FILE} from 'preview'"
 dump_mysql preview \
-    old_api_links \
     old_posts \
     old_postmeta \
     old_show_posts \
-    old_story_ids \
-    old_story_xml \
     old_terms \
     old_term_taxonomy \
     old_term_relationships \
