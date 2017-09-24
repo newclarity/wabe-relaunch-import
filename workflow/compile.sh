@@ -30,7 +30,7 @@ announce "Running data conversion scripts"
 
 if [ -f "${SNAPSHOT_FILE}" ]; then
 
-    announce "...Importing exported content into ${DEPLOY_BRANCH} environment..."
+    announce "...Importing exported content into ${DEPLOY_BRANCH} environment"
     import_mysql "${DEPLOY_BRANCH}" < ${IMPORT_PACKAGE_FILE}
 
     announce "...Show the tables we have now"
@@ -169,6 +169,9 @@ else
         fi
     fi
 fi
+
+announce "...Waking up ${DEPLOY_BRANCH} environment"
+wakeup_website "${DEPLOY_BRANCH}" "/"
 
 announce "Data conversion scripts complete."
 

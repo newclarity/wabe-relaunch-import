@@ -161,7 +161,10 @@ function get_website_url() {
 #
 function wakeup_website() {
     branch="$(get_mysql_env "$1")"
-    url="$(get_website_url "${branch}")/robots.txt"
+    path="$2"
+    path="${path:=/robots.txt}"
+    url="$(get_website_url "${branch}")"
+    url="${url}${path}"
 
     #
     # -s disables progress status: https://stackoverflow.com/a/7373922/102699
