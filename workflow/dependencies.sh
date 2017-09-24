@@ -130,7 +130,7 @@ execute_mysql "DROP TABLE IF EXISTS new_posts;
     INSERT INTO new_posts
     SELECT * FROM new_menu_items
     UNION
-    SELECT * FROM wp_posts WHERE post_status='publish' AND post_type IN (${post_types});
+    SELECT * FROM wp_posts WHERE post_status='publish' AND post_type IN (${post_types})
     UNION
     SELECT * FROM wp_posts WHERE post_type='page' AND post_status IN ('publish','private','draft','revision','inherit');"
 
