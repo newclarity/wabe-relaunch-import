@@ -18,6 +18,7 @@ declare=${CLONE_LIVE_DATABASE:=}
 declare=${CLONE_LIVE_FILES:=}
 declare=${PHP_ROOT:=}
 
+
 source "${SHARED_SCRIPTS}"
 
 ARTIFACTS_FILE="${CIRCLE_ARTIFACTS}/deployments.log"
@@ -112,14 +113,6 @@ else
         SELECT option_name,option_value,autoload FROM new_options;
         UPDATE wp_options SET option_value='' WHERE option_name='rewrite_rules';"
 
-    announce "...Setting menu locations for wabe-theme in wp_options"
-    theme_mods=$(query_mysql "SELECT option_value FROM wp_options WHERE option_name = 'theme_mods_wabe-theme';")
-    old_menu_id=$(query_mysql "SELECT term_id FROM wp_terms WHERE slug='primary-navigation-relaunch';")
-    theme_mods="$(php -e "${PHP_ROOT}"/convert.menu.php "${theme_mods}" primary_navigation "${old_menu_id}")"
-    old_menu_id=$(query_mysql "SELECT term_id FROM wp_terms WHERE slug='footer-navigation-relaunch';")
-    theme_mods="$(php -e "${PHP_ROOT}"/convert.menu.php "${theme_mods}" footer_navigation "${old_menu_id}")"
-    execute_mysql "UPDATE wp_options SET option_value='${theme_mods}' WHERE option_name='theme_mods_wabe-theme';"
-
     announce "...Importing new_terms into wp_terms"
     execute_mysql "INSERT INTO wp_terms
         SELECT * FROM new_terms WHERE term_id NOT IN (SELECT term_id FROM wp_terms);"
@@ -149,6 +142,14 @@ else
             WHERE CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) NOT IN (
                 SELECT CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) FROM wp_term_relationships
             )"
+
+    announce "...Setting menu locations for wabe-theme in wp_options"
+    theme_mods=$(query_mysql "SELECT option_value FROM wp_options WHERE option_name='theme_mods_wabe-theme';");
+    old_menu_id=$(query_mysql "SELECT term_id FROM wp_terms WHERE slug='primary-navigation-relaunch';")
+    theme_mods="$(php -e "${PHP_ROOT}"/convert-menu.php "${theme_mods}" primary_navigation "${old_menu_id}")"
+    old_menu_id=$(query_mysql "SELECT term_id FROM wp_terms WHERE slug='footer-navigation-relaunch';")
+    theme_mods="$(php -e "${PHP_ROOT}"/convert-menu.php "${theme_mods}" footer_navigation "${old_menu_id}")"
+    execute_mysql "UPDATE wp_options SET option_value='${theme_mods}' WHERE option_name='theme_mods_wabe-theme';"
 
     announce "...Importing posts into live tables"
     #execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import

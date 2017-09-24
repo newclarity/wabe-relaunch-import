@@ -57,7 +57,7 @@ machine:
         INCLUDES_ROOT:  "${WORKFLOW_ROOT}/includes"
         TERMINUS_ROOT:  "${HOME}/terminus"
         MYSQL_ROOT:     "${HOME}/mysql"
-        PHP_ROOT:       "${HOME}/php"
+        PHP_ROOT:       "${WORKFLOW_ROOT}/php"
 
         
         #
