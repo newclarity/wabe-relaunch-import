@@ -23,14 +23,11 @@ source ${SHARED_SCRIPTS}
 
 ARTIFACTS_FILE="${CIRCLE_ARTIFACTS}/compile.log"
 
-announce "Is ${IMPORT_PACKAGE_FILE} found?"
 if [ -f "${IMPORT_PACKAGE_FILE}" ] ; then
-    echo "Yes!"
+    announce "Is ${IMPORT_PACKAGE_FILE} found? Yes!"
 else
-    echo "No. :-("
+    announce "Is ${IMPORT_PACKAGE_FILE} found? No. :-("
 fi
-
-ls -al "${IMPORT_PACKAGE_FILE}"
 
 if [ "yes" = "${REGEN_IMPORT_PACKAGE}" ]; then
     rm -f "${IMPORT_PACKAGE_FILE}"
