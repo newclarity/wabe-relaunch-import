@@ -48,11 +48,11 @@ else
     # Do some cleanup
     #
     announce "...Dropping infernal Smart Slider tables"
-    execute_mysql "DROP TABLE wp_nextend2_image_storage"
-    execute_mysql "DROP TABLE wp_nextend2_section_storage"
-    execute_mysql "DROP TABLE wp_nextend2_smartslider3_generators"
-    execute_mysql "DROP TABLE wp_nextend2_smartslider3_sliders"
-    execute_mysql "DROP TABLE wp_nextend2_smartslider3_slides"
+    execute_mysql "DROP TABLE wp_nextend2_image_storage;
+        DROP TABLE wp_nextend2_section_storage;
+        DROP TABLE wp_nextend2_smartslider3_generators;
+        DROP TABLE wp_nextend2_smartslider3_sliders;
+        DROP TABLE wp_nextend2_smartslider3_slides"
 
     announce "...Importing new tables and records into working database..."
     import_mysql "${DEPLOY_BRANCH}" < ${IMPORT_PACKAGE_FILE}
@@ -98,15 +98,14 @@ else
         OR meta_key = '_wabe_mosaic[after_election_mosaic]'
         OR meta_key = '_wabe_mosaic[election_mosaic]'"
 
-    announce "...Delete transients and new_options from wp_options"
+    announce "...Importing new_options into wp_options, deleting selected wp_options"
     execute_mysql "DELETE FROM wp_options WHERE 1=0
             OR option_name LIKE '_transient_%'
             OR option_name LIKE '_site_transient_%
-            OR option_name IN (SELECT option_name FROM new_options);'"
-
-    announce "...Importing new_options into wp_options"
-    execute_mysql "INSERT INTO wp_options (option_name,option_value,autoload)
-        SELECT option_name,option_value,autoload FROM new_options;"
+            OR option_name IN (SELECT option_name FROM new_options);
+        INSERT INTO wp_options (option_name,option_value,autoload)
+        SELECT option_name,option_value,autoload FROM new_options;
+        UPDATE wp_options SET rewrite_rules='' WHERE option_name='rewrite_rules';"
 
     announce "...Setting menu locations for wabe-theme in wp_options"
     execute_mysql "

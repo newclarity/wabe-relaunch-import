@@ -181,8 +181,6 @@ execute_mysql "DROP TABLE IF EXISTS new_term_relationships;
 announce "...Inserting options from new_options to wp_options on 'preview'"
 execute_mysql "DROP TABLE IF EXISTS new_options;
     CREATE TABLE new_options LIKE wp_options;
-    INSERT INTO new_options (option_name,option_value,autoload)
-        VALUES ('rewrite_rules','','yes');
     INSERT INTO new_options
     SELECT * FROM wp_options WHERE option_name IN (
         'wabe_settings',
