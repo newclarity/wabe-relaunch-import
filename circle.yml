@@ -13,8 +13,8 @@ machine:
         #
         # Switches to control what happens during rebuild
         #
-        REGEN_IMPORT_PACKAGE:           "no"
-        REGEN_MENU_IMPORTS:             "no"
+        REGEN_IMPORT_PACKAGE:           "yes"
+        REGEN_MENU_IMPORTS:             "yes"
         GENERATE_IMPORT_PACKAGE_GZIP:   "no"
 
         CLONE_LIVE_DATABASE:            "yes"
