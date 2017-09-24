@@ -24,7 +24,7 @@ announce "Running data conversion scripts"
 
 if [ -f "${SNAPSHOT_FILE}" ]; then
 
-    announce "...Importing snapshotted tables and records into working database..."
+    announce "...Importing exported content into ${DEPLOY_BRANCH} environment..."
     import_mysql "${DEPLOY_BRANCH}" < ${IMPORT_PACKAGE_FILE}
 
     announce "...Show the tables we have now"
@@ -57,8 +57,8 @@ else
     announce "...Importing new tables and records into working database..."
     import_mysql "${DEPLOY_BRANCH}" < ${IMPORT_PACKAGE_FILE}
 
-    announce "...Show the tables we have now"
-    execute_mysql "SHOW TABLES;"
+    #announce "...Show the tables we have now"
+    #execute_mysql "SHOW TABLES;"
 
     #
     # Add some sanity checks here
@@ -112,12 +112,12 @@ else
         SELECT @primary_nav_id := term_id FROM wp_terms WHERE name='Primary Navigation (Relaunch)';
         SELECT @footer_nav_id := term_id FROM wp_terms WHERE name='Footer Navigation (Relaunch)';
         UPDATE wp_options
-        SET option_value = REPLACE( option_value,'primary_navigation";i:2;',
-	        CONCAT('primary_navigation";i:',CAST( @primary_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
+        SET option_value = REPLACE( option_value,'primary_navigation\";i:2;',
+	        CONCAT('primary_navigation\";i:',CAST( @primary_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
         ) WHERE option_name = 'theme_mods_wabe-theme';
         UPDATE wp_options
-        SET option_value = REPLACE( option_value,'footer_navigation";i:3;',
-	        CONCAT('footer_navigation";i:',CAST( @primary_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
+        SET option_value = REPLACE( option_value,'footer_navigation\";i:3;',
+	        CONCAT('footer_navigation\";i:',CAST( @primary_nav_id AS CHAR) COLLATE utf8mb4_general_ci,';')
         ) WHERE option_name = 'theme_mods_wabe-theme';"
 
     announce "...Importing new_terms into wp_terms"
