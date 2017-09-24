@@ -193,6 +193,7 @@ execute_mysql "DROP TABLE IF EXISTS new_options;
         'page_for_posts',
         'page_on_front',
         'current_theme',
+        'theme_mods_wabe-theme',
     );"
 
 # Add Home page configs? OR is this referring to setting the WP "Reading Settings First Page Displays" option?
