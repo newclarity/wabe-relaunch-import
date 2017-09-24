@@ -2,7 +2,7 @@
 
 declare=${CIRCLE_BRANCH:=}
 
-if [ "prelaunch" !== "${CIRCLE_BRANCH}" ] ; then
+if [ "prelaunch" != "${CIRCLE_BRANCH}" ] ; then
     # Failsafe
     exit 1
 fi
