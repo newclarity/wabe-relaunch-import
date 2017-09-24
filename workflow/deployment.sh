@@ -101,7 +101,7 @@ else
     announce "...Importing new_options into wp_options, deleting selected wp_options"
     execute_mysql "DELETE FROM wp_options WHERE 1=0
             OR option_name LIKE '_transient_%'
-            OR option_name LIKE '_site_transient_%
+            OR option_name LIKE '_site_transient_%'
             OR option_name IN (SELECT option_name FROM new_options);
         INSERT INTO wp_options (option_name,option_value,autoload)
         SELECT option_name,option_value,autoload FROM new_options;
