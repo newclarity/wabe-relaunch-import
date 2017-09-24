@@ -117,8 +117,6 @@ machine:
         wabe-relaunch.test: 127.0.0.1
         www.wabe-relaunch.test: 127.0.0.1
 
-#checkout:
-
 dependencies:
     cache_directories:
         - ~/terminus
@@ -131,24 +129,9 @@ compile:
     override:
         - workflow/compile.sh
 
-    post:
-        - workflow/deployment.sh
-
 
 test:
     override:
         - echo 'No tests, just say us Okay!'
 
-
-deployment:
-
-  deploy:
-    branch: prelaunch
-    commands:
-    - workflow/deployment.sh
-
-  deploy:
-    branch: import
-    commands:
-    - workflow/deployment.sh
 
