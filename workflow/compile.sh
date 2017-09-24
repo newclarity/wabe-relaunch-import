@@ -54,7 +54,8 @@ fi
 
 set_mysql_env "preview"
 
-if [ "yes" = "${REGEN_MENU_IMPORTS}" ]; then
+if [[ "yes" = "${REGEN_MENU_IMPORTS}" || ! -f "${IMPORT_PACKAGE_FILE}" ]]; then
+
     announce "...Generating new menus tables from 'preview'"
 
     announce "......Generating new_menus from wp_terms on 'preview'"
