@@ -105,7 +105,7 @@ else
             OR option_name IN (SELECT option_name FROM new_options);
         INSERT INTO wp_options (option_name,option_value,autoload)
         SELECT option_name,option_value,autoload FROM new_options;
-        UPDATE wp_options SET rewrite_rules='' WHERE option_name='rewrite_rules';"
+        UPDATE wp_options SET option_value='' WHERE option_name='rewrite_rules';"
 
     announce "...Setting menu locations for wabe-theme in wp_options"
     execute_mysql "
