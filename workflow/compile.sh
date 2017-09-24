@@ -16,6 +16,7 @@ declare=${GENERATE_SNAPSHOT:=}
 declare=${GENERATE_SNAPSHOT_GZIP:=}
 declare=${CLONE_LIVE_DATABASE:=}
 declare=${CLONE_LIVE_FILES:=}
+declare=${PHP_ROOT:=}
 
 source "${SHARED_SCRIPTS}"
 
@@ -112,23 +113,12 @@ else
         UPDATE wp_options SET option_value='' WHERE option_name='rewrite_rules';"
 
     announce "...Setting menu locations for wabe-theme in wp_options"
-    execute_mysql "
-        UPDATE wp_options o INNER JOIN wp_terms t ON name = 'Primary Navigation (Relaunch)'
-        SET o.option_value = REPLACE( o.option_value,'primary_navigation\";i:2;' COLLATE utf8_unicode_ci,
-	        CONCAT(
-	            'primary_navigation\";i:' COLLATE utf8_unicode_ci,
-	            CAST( t.term_id AS CHAR),
-	            ';' COLLATE utf8_unicode_ci
-	        )
-        ) WHERE o.option_name = 'theme_mods_wabe-theme';
-        UPDATE wp_options o INNER JOIN wp_terms t ON name ='Footer Navigation (Relaunch)'
-        SET option_value = REPLACE( o.option_value,'footer_navigation\";i:3;' COLLATE utf8_unicode_ci,
-	        CONCAT(
-	            'footer_navigation\";i:' COLLATE utf8_unicode_ci,
-	            CAST( t.term_id AS CHAR),
-	            ';' COLLATE utf8_unicode_ci
-	        )
-        ) WHERE o.option_name = 'theme_mods_wabe-theme';"
+    theme_mods=$(query_mysql "SELECT option_value FROM wp_options WHERE option_name = 'theme_mods_wabe-theme';")
+    old_menu_id=$(query_mysql "SELECT term_id FROM wp_terms WHERE slug='primary-navigation-relaunch';")
+    theme_mods="$(php -e "${PHP_ROOT}"/convert.menu.php "${theme_mods}" primary_navigation "${old_menu_id}")"
+    old_menu_id=$(query_mysql "SELECT term_id FROM wp_terms WHERE slug='footer-navigation-relaunch';")
+    theme_mods="$(php -e "${PHP_ROOT}"/convert.menu.php "${theme_mods}" footer_navigation "${old_menu_id}")"
+    execute_mysql "UPDATE wp_options SET option_value='${theme_mods}' WHERE option_name='theme_mods_wabe-theme';"
 
     announce "...Importing new_terms into wp_terms"
     execute_mysql "INSERT INTO wp_terms

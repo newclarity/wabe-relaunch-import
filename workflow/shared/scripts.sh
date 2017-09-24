@@ -79,6 +79,12 @@ function trim {
     echo "$1" | xargs
 }
 
+function query_mysql() {
+    branch="$(get_mysql_env "$2")"
+    wakeup_website "${branch}"
+    mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1" --silent --skip-column-names
+}
+
 function execute_mysql() {
     branch="$(get_mysql_env "$2")"
     wakeup_website "${branch}"
@@ -87,7 +93,6 @@ function execute_mysql() {
     echo "" >> $ARTIFACTS_FILE
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1"
 }
-
 function import_mysql() {
     branch="$(get_mysql_env "$1")"
     set_mysql_env "${branch}"
