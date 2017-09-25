@@ -166,8 +166,15 @@ else
     announce "...Updating theme_mods_wabe-theme in wp_options"
     execute_mysql "UPDATE wp_options SET option_value='${theme_mods}' WHERE option_name='theme_mods_wabe-theme';"
 
-    announce "...Converting Stories to Episodes and attaching Related Stories"
-    call_website "/update-show-data.php"
+    announce "...Converting Show Stories to Episodes"
+    execute_mysql " UPDATE old_show_posts o
+        INNER JOIN wp_posts p ON p.ID=o.post_id
+        INNER JOIN wp_posts s ON s.post_name=o.show_slug
+        SET p.post_type = 'wabe_episode', p.post_parent = s.ID
+        WHERE p.post_type='post' AND o.post_id<>0 AND ( o.title LIKE 'City Lights%' OR o.title LIKE 'Closer Look%' );"
+
+#    announce "...Converting Attaching Show Stories to Shows"
+#    execute_mysql ""
 
     announce "...Importing posts into live tables"
     execute_terminus wp "wabe.${DEPLOY_BRANCH}" "wabe-import"
