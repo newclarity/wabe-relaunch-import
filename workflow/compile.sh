@@ -148,6 +148,18 @@ else
                 SELECT CONCAT( CAST(object_id AS char),'-', CAST(term_taxonomy_id AS char) ) FROM wp_term_relationships
             )"
 
+    announce "...Importing old_term_relationships into wp_term_relationships"
+    execute_mysql "DROP TABLE IF EXISTS draft_no_author_post_ids;
+        CREATE TEMPORARY TABLE draft_no_author_post_ids
+        SELECT ID FROM wp_posts WHERE 1=1
+            AND post_type = 'post'
+            AND post_status = 'draft'
+            AND post_author = 0
+            AND post_date < DATE_SUB( NOW(), INTERVAL 30 DAY );
+        DELETE FROM wp_posts WHERE ID IN (SELECT ID FROM draft_no_author_post_ids);
+        DELETE FROM wp_postmeta WHERE post_id IN (SELECT ID FROM draft_no_author_post_ids);
+        DELETE FROM wp_term_relationships WHERE object_id IN (SELECT ID FROM draft_no_author_post_ids);"
+
     announce "...Setting menu locations for wabe-theme in wp_options"
     theme_mods=$(query_mysql "SELECT option_value FROM wp_options WHERE option_name='theme_mods_wabe-theme';");
     old_menu_id=$(query_mysql "SELECT term_id FROM wp_terms WHERE slug='primary-navigation-relaunch';")
@@ -156,8 +168,11 @@ else
     theme_mods="$(php -e "${PHP_ROOT}"/convert-menu.php "${theme_mods}" footer_navigation "${old_menu_id}")"
     execute_mysql "UPDATE wp_options SET option_value='${theme_mods}' WHERE option_name='theme_mods_wabe-theme';"
 
+    announce "...Converting Stories to Episodes and attaching Related Stories"
+    call_website "/update-show-data.php"
+
     announce "...Importing posts into live tables"
-    #execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
+    execute_terminus wp "wabe.${DEPLOY_BRANCH}" wabe-import
 
     if [ "yes" = "${GENERATE_SNAPSHOT}" ] ; then
         announce "...Creating a Snapshot of database just assembled"
@@ -171,7 +186,7 @@ else
 fi
 
 announce "...Waking up ${DEPLOY_BRANCH} environment"
-wakeup_website "${DEPLOY_BRANCH}" "/"
+call_website "${DEPLOY_BRANCH}" "/"
 
 announce "Data conversion scripts complete."
 

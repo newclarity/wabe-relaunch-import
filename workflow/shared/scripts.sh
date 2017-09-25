@@ -81,13 +81,13 @@ function trim {
 
 function query_mysql() {
     branch="$(get_mysql_env "$2")"
-    wakeup_website "${branch}"
+    call_website "${branch}"
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" --execute="$1" --silent --skip-column-names
 }
 
 function execute_mysql() {
     branch="$(get_mysql_env "$2")"
-    wakeup_website "${branch}"
+    call_website "${branch}"
     echo "" >> $ARTIFACTS_FILE
     echo "$1" >> $ARTIFACTS_FILE
     echo "" >> $ARTIFACTS_FILE
@@ -96,14 +96,14 @@ function execute_mysql() {
 function import_mysql() {
     branch="$(get_mysql_env "$1")"
     set_mysql_env "${branch}"
-    wakeup_website "${branch}"
+    call_website "${branch}"
     mysql --defaults-extra-file="$(get_mysql_defaults_file "${branch}")"
 }
 
 function dump_mysql() {
     branch="$1"
     set_mysql_env "${branch}"
-    wakeup_website "${branch}"
+    call_website "${branch}"
     shift
     mysqldump \
         --defaults-extra-file="$(get_mysql_defaults_file "${branch}")" \
@@ -123,7 +123,7 @@ function dereference() {
 }
 
 function execute_terminus() {
-    wakeup_website "$(get_mysql_env "")"
+    call_website "$(get_mysql_env "")"
     ${TERMINUS_ROOT}/vendor/bin/terminus "$@"
 }
 
@@ -164,7 +164,7 @@ function get_website_url() {
 #
 # Wakeup the website database by requesting a lightweight URL: robots.txt
 #
-function wakeup_website() {
+function call_website() {
     branch="$(get_mysql_env "$1")"
     path="$2"
     path="${path:=/robots.txt}"
